@@ -1,6 +1,7 @@
 export interface CurrentUser {
   email: string;
   mcpUserToken: string;
+  mcpConnectorUrl: string;
 }
 
 export interface ConnectedAccountSummary {

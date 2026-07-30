@@ -10,6 +10,7 @@ import { ConnectedAccount, ConnectedAccountDocument } from './schemas/connected-
 import { AppLoggerService } from '../common/app-logger.service';
 
 const GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
+const SCOPES = [GMAIL_READONLY_SCOPE, 'openid', 'email'];
 
 export class NoRefreshTokenError extends Error {
   constructor() {
@@ -42,7 +43,7 @@ export class GoogleOauthService {
     return client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
-      scope: [GMAIL_READONLY_SCOPE],
+      scope: SCOPES,
       state,
     });
   }

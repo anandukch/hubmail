@@ -5,8 +5,9 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
   GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
   GOOGLE_CLIENT_SECRET: z.string().min(1, 'GOOGLE_CLIENT_SECRET is required'),
-  GOOGLE_OAUTH_CALLBACK_URL: z.string().url('GOOGLE_OAUTH_CALLBACK_URL must be a valid URL'),
+  GOOGLE_REDIRECT_URI: z.string().url('GOOGLE_REDIRECT_URI must be a valid URL'),
   PUBLIC_BASE_URL: z.string().url('PUBLIC_BASE_URL must be a valid URL'),
+  CLIENT_URL: z.string().url().optional(),
   TOKEN_ENCRYPTION_KEY: z
     .string()
     .regex(/^[0-9a-fA-F]{64}$/, 'TOKEN_ENCRYPTION_KEY must be 64 hex characters (32 bytes)'),

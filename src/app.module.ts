@@ -28,7 +28,7 @@ import { CommonModule } from './common/common.module';
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 20 }]),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'web', 'dist'),
-      exclude: ['/auth/(.*)', '/oauth/(.*)', '/mcp/(.*)'],
+      exclude: ['/auth/{*path}', '/oauth/{*path}', '/mcp/{*path}'],
     }),
     CommonModule,
     AuthModule,

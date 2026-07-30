@@ -13,7 +13,7 @@ export function registerSearchEmailsTool(server: McpServer, ctx: ToolContext): v
         account: z
           .string()
           .optional()
-          .describe('Alias of the account to search, e.g. "work". Omit if only one account is connected.'),
+          .describe('Alias of the account to search, e.g. "work". If multiple accounts are connected and the user has not specified one, you MUST ask the user which account to use before calling this tool.'),
         query: z.string().describe('Gmail search syntax, e.g. "from:boss subject:invoice"'),
         max_results: z.number().int().positive().max(50).default(10),
       },

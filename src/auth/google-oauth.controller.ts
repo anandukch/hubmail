@@ -57,7 +57,7 @@ export class GoogleOauthController {
     @Query('error') error: string | undefined,
     @Res() res: Response,
   ) {
-    const dashboardUrl = this.config.get('publicBaseUrl', { infer: true }) + '/dashboard';
+    const dashboardUrl = this.config.get('clientUrl', { infer: true }) + '/dashboard';
 
     if (error) {
       let alias: string | undefined;

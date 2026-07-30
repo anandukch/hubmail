@@ -8,7 +8,7 @@ export function registerListAccountsTool(server: McpServer, ctx: ToolContext): v
     'list_accounts',
     {
       title: 'List connected Gmail accounts',
-      description: 'Returns the aliases of Gmail accounts connected for this user.',
+      description: 'Returns the aliases of Gmail accounts connected for this user. If more than one account is returned, ask the user which account they want to use before proceeding with any email operation.',
       inputSchema: {},
       outputSchema: { accounts: z.array(z.string()) },
     },

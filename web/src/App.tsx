@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as api from './api';
 import type { ConnectedAccountSummary, CurrentUser } from './api';
+import LandingPage from './LandingPage';
 import './App.css';
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -86,7 +87,7 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
   const [accounts, setAccounts] = useState<ConnectedAccountSummary[] | null>(null);
   const [alias, setAlias] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
-  const connectorUrl = `${window.location.origin}/mcp/${user.mcpUserToken}`;
+  const connectorUrl = user.mcpConnectorUrl;
 
   async function refresh() {
     try {
@@ -171,6 +172,7 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
 
 function App() {
   const [user, setUser] = useState<CurrentUser | null | undefined>(undefined);
+  const [showAuth, setShowAuth] = useState(false);
   const banner = useQueryBanner();
 
   useEffect(() => {
@@ -181,14 +183,23 @@ function App() {
     return <div className="loading">Loading…</div>;
   }
 
+  if (user) {
+    return (
+      <div className="app">
+        {banner && <div className={`banner banner-${banner.kind}`}>{banner.text}</div>}
+        <Dashboard user={user} onLoggedOut={() => { setUser(null); setShowAuth(false); }} />
+      </div>
+    );
+  }
+
+  if (!showAuth) {
+    return <LandingPage onGetStarted={() => setShowAuth(true)} />;
+  }
+
   return (
     <div className="app">
       {banner && <div className={`banner banner-${banner.kind}`}>{banner.text}</div>}
-      {user ? (
-        <Dashboard user={user} onLoggedOut={() => setUser(null)} />
-      ) : (
-        <AuthForm onAuthed={setUser} />
-      )}
+      <AuthForm onAuthed={setUser} />
     </div>
   );
 }
