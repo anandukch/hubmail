@@ -1,0 +1,12 @@
+node_modules/
+dist/
+web/dist/
+web/node_modules/
+.env
+.env.local
+*.log
+npm-debug.log*
+.DS_Store
+coverage/
+.vscode/
+*.tsbuildinfo
