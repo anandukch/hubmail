@@ -25,7 +25,8 @@ export class McpController {
       return;
     }
 
-    const server = this.mcpServerFactory.createServer(userId);
+    const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim() ?? req.socket.remoteAddress;
+    const server = this.mcpServerFactory.createServer(userId, ip);
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,

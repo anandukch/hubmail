@@ -43,6 +43,7 @@ export function registerReadEmailTool(server: McpServer, ctx: ToolContext): void
           throw new Error('Unexpected ambiguous account resolution for read_email');
         }
 
+        ctx.auditLog.log({ userId: ctx.userId, tool: 'read_email', alias: resolution.alias, metadata: { message_id }, ip: ctx.ip });
         const accessToken = await ctx.tokenRefresh.getValidAccessToken(ctx.userId, resolution.alias);
         const email = await ctx.gmail.getMessage(accessToken, message_id);
 

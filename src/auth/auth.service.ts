@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { User, UserDocument } from './schemas/user.schema';
 import { ConnectedAccount, ConnectedAccountDocument } from './schemas/connected-account.schema';
+import { AuditLog, AuditLogDocument } from './schemas/audit-log.schema';
 import { AppConfig } from '../config/configuration';
 
 export interface ConnectedAccountSummary {
@@ -31,6 +32,8 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(ConnectedAccount.name)
     private readonly connectedAccountModel: Model<ConnectedAccountDocument>,
+    @InjectModel(AuditLog.name)
+    private readonly auditLogModel: Model<AuditLogDocument>,
     private readonly config: ConfigService<AppConfig, true>,
   ) {}
 
@@ -82,6 +85,15 @@ export class AuthService {
       .select('alias googleEmail status')
       .sort({ alias: 1 });
     return accounts.map((a) => ({ alias: a.alias, googleEmail: a.googleEmail, status: a.status }));
+  }
+
+  async getAuditLogs(userId: string, limit = 100) {
+    return this.auditLogModel
+      .find({ userId: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean()
+      .exec();
   }
 
   private buildAuthResult(user: UserDocument): AuthResult {

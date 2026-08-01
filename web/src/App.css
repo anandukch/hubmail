@@ -237,3 +237,61 @@ button[type='submit']:disabled {
   font-size: 0.85rem;
   margin-top: 0.5rem;
 }
+
+.audit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+}
+
+.audit-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.audit-entry:last-child {
+  border-bottom: none;
+}
+
+.audit-tool {
+  font-family: monospace;
+  background: var(--code-bg);
+  color: var(--accent);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.audit-alias {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.audit-meta {
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-time {
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.audit-ip {
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  font-family: monospace;
+}

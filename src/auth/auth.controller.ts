@@ -60,6 +60,12 @@ export class AuthController {
     return this.authService.listConnectedAccounts(user.userId);
   }
 
+  @Get('audit-logs')
+  @UseGuards(JwtAuthGuard)
+  auditLogs(@CurrentUser() user: RequestUser) {
+    return this.authService.getAuditLogs(user.userId);
+  }
+
   private setSessionCookie(res: Response, token: string) {
     res.cookie('session', token, {
       httpOnly: true,

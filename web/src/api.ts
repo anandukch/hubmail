@@ -46,3 +46,16 @@ export function listAccounts(): Promise<ConnectedAccountSummary[]> {
 export function connectAccountUrl(alias: string): string {
   return `/oauth/google/connect?alias=${encodeURIComponent(alias)}`;
 }
+
+export interface AuditLogEntry {
+  _id: string;
+  tool: string;
+  alias?: string;
+  metadata?: Record<string, unknown>;
+  ip?: string;
+  createdAt: string;
+}
+
+export function getAuditLogs(): Promise<AuditLogEntry[]> {
+  return request('/auth/audit-logs');
+}
