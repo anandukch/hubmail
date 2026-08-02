@@ -9,12 +9,14 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User, UserSchema } from './schemas/user.schema';
 import { ConnectedAccount, ConnectedAccountSchema } from './schemas/connected-account.schema';
+import { AuditLog, AuditLogSchema } from './schemas/audit-log.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: ConnectedAccount.name, schema: ConnectedAccountSchema },
+      { name: AuditLog.name, schema: AuditLogSchema },
     ]),
   ],
   controllers: [GoogleOauthController, AuthController],

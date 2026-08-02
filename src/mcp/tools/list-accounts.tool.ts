@@ -14,6 +14,7 @@ export function registerListAccountsTool(server: McpServer, ctx: ToolContext): v
     },
     async () =>
       withToolErrorHandling(ctx.logger, { userId: ctx.userId, tool: 'list_accounts' }, async () => {
+        ctx.auditLog.log({ userId: ctx.userId, tool: 'list_accounts', ip: ctx.ip });
         const aliases = await ctx.accountResolver.listAliases(ctx.userId);
         const text =
           aliases.length === 0

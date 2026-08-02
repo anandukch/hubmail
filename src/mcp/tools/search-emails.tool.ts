@@ -52,6 +52,7 @@ export function registerSearchEmailsTool(server: McpServer, ctx: ToolContext): v
           };
         }
 
+        ctx.auditLog.log({ userId: ctx.userId, tool: 'search_emails', alias: resolution.alias, metadata: { query, max_results }, ip: ctx.ip });
         const accessToken = await ctx.tokenRefresh.getValidAccessToken(ctx.userId, resolution.alias);
         const results = await ctx.gmail.searchMessages(accessToken, query, max_results);
 

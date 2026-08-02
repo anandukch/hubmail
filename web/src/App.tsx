@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as api from './api';
-import type { ConnectedAccountSummary, CurrentUser } from './api';
+import type { ConnectedAccountSummary, CurrentUser, AuditLogEntry } from './api';
 import LandingPage from './LandingPage';
 import './App.css';
 
@@ -85,13 +85,16 @@ function AuthForm({ onAuthed }: { onAuthed: (user: CurrentUser) => void }) {
 
 function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () => void }) {
   const [accounts, setAccounts] = useState<ConnectedAccountSummary[] | null>(null);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[] | null>(null);
   const [alias, setAlias] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
   const connectorUrl = user.mcpConnectorUrl;
 
   async function refresh() {
     try {
-      setAccounts(await api.listAccounts());
+      const [accts, logs] = await Promise.all([api.listAccounts(), api.getAuditLogs()]);
+      setAccounts(accts);
+      setAuditLogs(logs);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Could not load accounts.');
     }
@@ -165,6 +168,30 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
         <h2>Claude connector URL</h2>
         <p>Paste this into Claude.ai or Claude Desktop as a custom MCP connector.</p>
         <code className="connector-url">{connectorUrl}</code>
+      </section>
+
+      <section className="card">
+        <h2>Audit log</h2>
+        <p>Every time Claude accessed your inbox via hubmail.</p>
+        {auditLogs === null ? (
+          <p>Loading…</p>
+        ) : auditLogs.length === 0 ? (
+          <p>No activity yet.</p>
+        ) : (
+          <ul className="audit-list">
+            {auditLogs.map((entry) => (
+              <li key={entry._id} className="audit-entry">
+                <span className="audit-tool">{entry.tool}</span>
+                {entry.alias && <span className="audit-alias">{entry.alias}</span>}
+                {entry.metadata?.query && (
+                  <span className="audit-meta">"{String(entry.metadata.query)}"</span>
+                )}
+                <span className="audit-time">{new Date(entry.createdAt).toLocaleString()}</span>
+                {entry.ip && <span className="audit-ip">{entry.ip}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

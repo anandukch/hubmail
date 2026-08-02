@@ -4,6 +4,7 @@ import { AccountResolverService } from './account-resolver.service';
 import { TokenRefreshService } from '../auth/token-refresh.service';
 import { GmailService } from '../gmail/gmail.service';
 import { AppLoggerService } from '../common/app-logger.service';
+import { AuditLogService } from './audit-log.service';
 import { ToolContext } from './tool-context';
 import { registerListAccountsTool } from './tools/list-accounts.tool';
 import { registerSearchEmailsTool } from './tools/search-emails.tool';
@@ -16,17 +17,20 @@ export class McpServerFactory {
     private readonly tokenRefresh: TokenRefreshService,
     private readonly gmail: GmailService,
     private readonly logger: AppLoggerService,
+    private readonly auditLog: AuditLogService,
   ) {}
 
-  createServer(userId: string): McpServer {
+  createServer(userId: string, ip?: string): McpServer {
     const server = new McpServer({ name: 'hubmail', version: '0.1.0' });
 
     const ctx: ToolContext = {
       userId,
+      ip,
       accountResolver: this.accountResolver,
       tokenRefresh: this.tokenRefresh,
       gmail: this.gmail,
       logger: this.logger,
+      auditLog: this.auditLog,
     };
 
     registerListAccountsTool(server, ctx);
