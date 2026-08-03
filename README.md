@@ -1,4 +1,15 @@
-# Hubmail
+<p align="center">
+  <img src="assets/logo.svg" width="120" alt="Hubmail logo" />
+</p>
+
+<h1 align="center">Hubmail</h1>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/docker/pulls/anandudevops/hubmail" alt="Docker Pulls" />
+  <img src="https://img.shields.io/badge/MCP-compatible-6366f1" alt="MCP compatible" />
+  <img src="https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white" alt="Node >=20" />
+</p>
 
 Multi-account Gmail MCP server. Connect one or more Gmail accounts, then let any [MCP](https://modelcontextprotocol.io)-compatible AI client (Claude, etc.) search and read your email through a small set of audited tools.
 
