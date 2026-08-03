@@ -183,8 +183,8 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
               <li key={entry._id} className="audit-entry">
                 <span className="audit-tool">{entry.tool}</span>
                 {entry.alias && <span className="audit-alias">{entry.alias}</span>}
-                {entry.metadata?.query && (
-                  <span className="audit-meta">"{String(entry.metadata.query)}"</span>
+                {Boolean(entry.metadata?.query) && (
+                  <span className="audit-meta">"{String(entry.metadata?.query)}"</span>
                 )}
                 <span className="audit-time">{new Date(entry.createdAt).toLocaleString()}</span>
                 {entry.ip && <span className="audit-ip">{entry.ip}</span>}

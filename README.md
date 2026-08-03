@@ -1,0 +1,149 @@
+# Hubmail
+
+Multi-account Gmail MCP server. Connect one or more Gmail accounts, then let any [MCP](https://modelcontextprotocol.io)-compatible AI client (Claude, etc.) search and read your email through a small set of audited tools.
+
+## How it works
+
+- Sign up / log in via the built-in web dashboard (React + Vite frontend served by the API).
+- Connect one or more Gmail accounts via Google OAuth. Each account gets a short alias (e.g. `work`, `personal`).
+- The dashboard gives you a personal **MCP connector URL**: `PUBLIC_BASE_URL/mcp/<your-token>`.
+- Add that URL as an MCP server in Claude Desktop, Claude Code, or any other MCP client.
+- The assistant can then call `list_accounts`, `search_emails`, and `read_email` against your connected Gmail accounts.
+- Every tool call is written to a per-user audit log (visible via `GET /auth/audit-logs`), so you can see exactly what was searched or read and when.
+
+## Tech stack
+
+- **API**: NestJS 11, MongoDB (Mongoose), Google APIs (`googleapis`), JWT session cookies, Helmet, rate limiting (`@nestjs/throttler`)
+- **MCP**: `@modelcontextprotocol/sdk`, Streamable HTTP transport at `POST /mcp/:userToken`
+- **Web**: React 19, Vite, TypeScript
+
+## MCP tools exposed
+
+| Tool | Description |
+|---|---|
+| `list_accounts` | Lists the Gmail account aliases connected for the authenticated user. |
+| `search_emails` | Searches a connected account using Gmail search syntax (`from:`, `subject:`, etc). |
+| `read_email` | Fetches the full body and attachment list of a single email by message id. |
+
+## Prerequisites
+
+- Node.js
+- MongoDB running locally or reachable via `MONGODB_URI`
+- A Google Cloud project with a configured OAuth 2.0 Client ID (Gmail API enabled)
+
+## Setup
+
+```bash
+npm install
+npm --prefix web install
+cp .env.example .env   # fill in the values below
+```
+
+Environment variables (`.env`):
+
+| Variable | Purpose |
+|---|---|
+| `PORT` | Port the API listens on (default `3000`) |
+| `MONGODB_URI` | MongoDB connection string |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 2.0 credentials |
+| `GOOGLE_OAUTH_CALLBACK_URL` | Must exactly match the redirect URI configured on the Google OAuth client |
+| `PUBLIC_BASE_URL` | Public base URL of this server, used to build each user's `/mcp/:userToken` connector URL |
+| `TOKEN_ENCRYPTION_KEY` | 32-byte hex key for encrypting stored Gmail OAuth tokens (`openssl rand -hex 32`) |
+| `JWT_SECRET` | Secret used to sign session JWTs |
+
+## Running
+
+```bash
+# API only, watch mode
+npm run start:dev
+
+# Web dashboard, dev server
+npm --prefix web run dev
+
+# Production: build both and serve the web bundle from the API
+npm run build
+npm run web:build
+npm run start:prod
+```
+
+The API serves the built web dashboard as static files (excluding `/auth`, `/oauth`, and `/mcp` routes), so a production deployment only needs the Nest server running.
+
+## Connecting an MCP client
+
+1. Log in to the dashboard and connect a Gmail account.
+2. Copy the connector URL shown on the dashboard (`PUBLIC_BASE_URL/mcp/<token>`).
+3. Add it to your client's MCP config.
+
+**Claude Desktop / Claude Code** (`claude_desktop_config.json` or `.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "hubmail": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp/<your-mcp-user-token>"
+    }
+  }
+}
+```
+
+Local HTTP URLs work for Claude Desktop/Code. Remote clients that require HTTPS (e.g. claude.ai custom connectors) need the server deployed behind TLS or tunneled (ngrok, cloudflared, etc).
+
+## Security
+
+- **Passwords**: hashed with bcrypt, never stored in plaintext.
+- **Sessions**: signed JWT (`typ: session`) in an `httpOnly`, `sameSite=lax` cookie; `secure` in production.
+- **OAuth CSRF protection**: the Google OAuth `state` param is itself a short-lived (5 min) signed JWT (`typ: oauth_state`) carrying `userId` + `alias` + a random nonce, verified on callback.
+- **Gmail refresh tokens**: encrypted at rest with AES-256-GCM (`TOKEN_ENCRYPTION_KEY`) before being written to MongoDB; access tokens are cached and refreshed on demand.
+- **MCP access**: each user gets an unguessable, random per-user token (`mcpUserToken`, 32 random bytes) baked into their connector URL (`/mcp/:userToken`) instead of a login flow — anyone with the URL can call the tools, so treat it like a password.
+- **Every MCP tool call is audit-logged** (user, tool, account alias, IP, timestamp) and retrievable via `GET /auth/audit-logs`.
+- **Transport hardening**: Helmet security headers on every response, per-route rate limiting (`@nestjs/throttler`) on auth and OAuth endpoints.
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant W as Web Dashboard
+    participant A as API (Nest)
+    participant G as Google OAuth
+    participant DB as MongoDB
+    participant C as AI Client (MCP)
+
+    U->>W: Sign up / log in
+    W->>A: POST /auth/signup or /login
+    A->>A: bcrypt hash/verify password
+    A->>DB: create/find user (+ mcpUserToken)
+    A-->>W: session JWT (httpOnly cookie)
+
+    U->>W: Connect Gmail account (alias)
+    W->>A: GET /oauth/google/connect?alias=work
+    A->>A: sign short-lived oauth_state JWT (userId, alias, nonce)
+    A-->>U: redirect to Google consent screen
+    U->>G: grant Gmail read-only access
+    G-->>A: GET /oauth/google/callback?code&state
+    A->>A: verify oauth_state JWT
+    A->>G: exchange code for tokens
+    A->>A: AES-256-GCM encrypt refresh_token
+    A->>DB: store encrypted refresh_token + alias
+
+    C->>A: POST /mcp/:mcpUserToken (tool call)
+    A->>DB: resolve mcpUserToken -> userId
+    A->>DB: decrypt refresh_token, refresh access_token if needed
+    A->>G: Gmail API request (readonly scope)
+    G-->>A: email data
+    A->>DB: write audit log entry (user, tool, alias, ip)
+    A-->>C: tool result
+```
+
+## Testing
+
+```bash
+npm test          # unit tests
+npm run test:e2e  # end-to-end tests
+npm run lint       # ESLint (API) / oxlint (web)
+```
+
+## Verifying Gmail credentials
+
+```bash
+npm run verify:gmail
+```
