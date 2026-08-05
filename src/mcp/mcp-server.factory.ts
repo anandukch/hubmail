@@ -9,6 +9,8 @@ import { ToolContext } from './tool-context';
 import { registerListAccountsTool } from './tools/list-accounts.tool';
 import { registerSearchEmailsTool } from './tools/search-emails.tool';
 import { registerReadEmailTool } from './tools/read-email.tool';
+import { registerDeleteEmailTool } from './tools/delete-email.tool';
+import { registerDraftEmailTool } from './tools/draft-email.tool';
 
 @Injectable()
 export class McpServerFactory {
@@ -36,6 +38,8 @@ export class McpServerFactory {
     registerListAccountsTool(server, ctx);
     registerSearchEmailsTool(server, ctx);
     registerReadEmailTool(server, ctx);
+    registerDeleteEmailTool(server, ctx);
+    registerDraftEmailTool(server, ctx);
 
     return server;
   }

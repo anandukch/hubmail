@@ -144,11 +144,9 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
                 <span className={`status status-${a.status}`}>
                   {a.status === 'ok' ? 'Connected' : 'Needs reconnect'}
                 </span>
-                {a.status === 'reauth_required' && (
-                  <a className="reconnect-link" href={api.connectAccountUrl(a.alias)}>
-                    Reconnect
-                  </a>
-                )}
+                <a className="reconnect-link" href={api.connectAccountUrl(a.alias)}>
+                  Reconnect
+                </a>
               </li>
             ))}
           </ul>

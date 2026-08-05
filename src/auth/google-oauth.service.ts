@@ -10,7 +10,10 @@ import { ConnectedAccount, ConnectedAccountDocument } from './schemas/connected-
 import { AppLoggerService } from '../common/app-logger.service';
 
 const GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
-const SCOPES = [GMAIL_READONLY_SCOPE, 'openid', 'email'];
+const GMAIL_MODIFY_SCOPE = 'https://www.googleapis.com/auth/gmail.modify';
+// Requested together so Google's consent screen lets the user deselect gmail.modify
+// and keep only gmail.readonly — write access (delete/draft) becomes opt-in per account.
+const SCOPES = [GMAIL_READONLY_SCOPE, GMAIL_MODIFY_SCOPE, 'openid', 'email'];
 
 export class NoRefreshTokenError extends Error {
   constructor() {

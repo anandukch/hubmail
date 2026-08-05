@@ -1,8 +1,6 @@
-import { BadRequestException, ConflictException, Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
 import type { Response } from 'express';
 import { GoogleOauthService, NoRefreshTokenError } from './google-oauth.service';
 import { OauthStateService } from './oauth-state.service';
@@ -10,7 +8,6 @@ import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { CurrentUser, type RequestUser } from '../common/current-user.decorator';
 import { AppLoggerService } from '../common/app-logger.service';
 import { AppConfig } from '../config/configuration';
-import { ConnectedAccount, ConnectedAccountDocument } from './schemas/connected-account.schema';
 
 const ALIAS_PATTERN = /^[a-z0-9-_]{1,40}$/;
 
@@ -22,8 +19,6 @@ export class GoogleOauthController {
     private readonly oauthStateService: OauthStateService,
     private readonly config: ConfigService<AppConfig, true>,
     private readonly logger: AppLoggerService,
-    @InjectModel(ConnectedAccount.name)
-    private readonly connectedAccountModel: Model<ConnectedAccountDocument>,
   ) {}
 
   @Get('connect')
@@ -37,14 +32,8 @@ export class GoogleOauthController {
       throw new BadRequestException('alias must be 1-40 characters: a-z, 0-9, - or _');
     }
 
-    const existing = await this.connectedAccountModel.findOne({
-      userId: new Types.ObjectId(user.userId),
-      alias,
-    });
-    if (existing) {
-      throw new ConflictException(`Alias '${alias}' is already connected`);
-    }
-
+    // Reusing an existing alias re-authorizes it (handleCallback upserts by userId+alias) —
+    // this is how "Reconnect" works from the UI for both expired and already-ok accounts.
     const state = this.oauthStateService.sign(user.userId, alias);
     const consentUrl = this.googleOauthService.buildConsentUrl(state);
     res.redirect(consentUrl);

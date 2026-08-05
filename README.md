@@ -35,6 +35,10 @@ Multi-account Gmail MCP server. Connect one or more Gmail accounts, then let any
 | `list_accounts` | Lists the Gmail account aliases connected for the authenticated user. |
 | `search_emails` | Searches a connected account using Gmail search syntax (`from:`, `subject:`, etc). |
 | `read_email` | Fetches the full body and attachment list of a single email by message id. |
+| `delete_email` | Moves a single email to Trash by message id. Recoverable — not a permanent delete. Requires write access. |
+| `draft_email` | Creates a draft (to/subject/body) in a connected account. Does not send it. Requires write access. |
+
+**Read vs. write access**: connecting an account requests both `gmail.readonly` and `gmail.modify`. Google's consent screen lets the user deselect `gmail.modify` and keep the connection read-only — `search_emails`/`read_email`/`list_accounts` keep working, `delete_email`/`draft_email` fail with a clear "reconnect and grant write access" message until the account is reconnected with `gmail.modify` granted.
 
 ## Prerequisites
 
@@ -78,6 +82,46 @@ npm run start:prod
 ```
 
 The API serves the built web dashboard as static files (excluding `/auth`, `/oauth`, and `/mcp` routes), so a production deployment only needs the Nest server running.
+
+## Docker
+
+Build and publish a multi-platform image (`linux/amd64` + `linux/arm64`) with `docker buildx`. A plain `docker build` on an Apple Silicon Mac only produces an `arm64` image — it won't run on a typical `amd64` Linux host, which is why `buildx` (not a plain build) is the right tool here.
+
+```bash
+docker login
+
+# one-off: create a builder that can target multiple platforms (skip if you already have one)
+docker buildx create --name hubmail-builder --use
+
+IMAGE=<your-dockerhub-user>/<your-image-name>
+
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t $IMAGE:latest \
+  -t $IMAGE:$(node -p "require('./package.json').version") \
+  --push \
+  .
+```
+
+`--push` publishes each platform's image directly to Docker Hub as part of the build — `buildx` can't `--load` a multi-platform build into the local Docker daemon (only single-platform images can be loaded locally), so pushing in the same step is the standard way to do this, rather than building then pushing separately.
+
+If you only need a single-arch image for the machine you're building on, a plain `docker build -t anandudevops/hubmail:latest .` still works — but push a multi-arch image with `buildx` if the image needs to run on a different architecture than your build machine.
+
+### Run locally from source
+
+To run your current code changes in Docker (not the image pulled from Docker Hub):
+
+```bash
+docker build -t hubmail:local .
+
+docker run --rm \
+  --env-file .env \
+  -p 5001:5001 \
+  --name hubmail \
+  hubmail:local
+```
+
+Tag it `hubmail:local` so it doesn't collide with a pulled `<user>/hubmail` image. `-p` must match `PORT` in your `.env` — the container listens on whatever `PORT` it's given via `--env-file`. Rebuild (`docker build ...` again) after every code change; the image won't reflect edits on its own.
 
 ## Connecting an MCP client
 

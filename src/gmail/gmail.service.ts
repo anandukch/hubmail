@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { gmail_v1 } from 'googleapis';
 import { buildGmailClient } from './gmail-client.factory';
 import { extractBody } from './mime/mime-parser.util';
+import { buildRawMessage, DraftInput } from './mime/mime-builder.util';
 import { GmailApiError } from './gmail-api.error';
 
 export interface EmailSummary {
@@ -54,6 +55,21 @@ export class GmailService {
       gmail.users.messages.get({ userId: 'me', id: messageId, format: 'full' }),
     );
     return this.toContent(message.data);
+  }
+
+  /** Moves the message to Trash. Recoverable — this is not a permanent delete. */
+  async trashMessage(accessToken: string, messageId: string): Promise<void> {
+    const gmail = buildGmailClient(accessToken);
+    await this.call(() => gmail.users.messages.trash({ userId: 'me', id: messageId }));
+  }
+
+  async createDraft(accessToken: string, input: DraftInput): Promise<{ draftId: string; messageId: string }> {
+    const gmail = buildGmailClient(accessToken);
+    const raw = buildRawMessage(input);
+    const draft = await this.call(() =>
+      gmail.users.drafts.create({ userId: 'me', requestBody: { message: { raw, threadId: input.threadId } } }),
+    );
+    return { draftId: draft.data.id ?? '', messageId: draft.data.message?.id ?? '' };
   }
 
   private toSummary(message: gmail_v1.Schema$Message): EmailSummary {

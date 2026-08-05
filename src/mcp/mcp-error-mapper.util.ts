@@ -34,6 +34,14 @@ export async function withToolErrorHandling(
         status: err.status,
         message: err.message,
       });
+
+      if (err.status === 403 && ['delete_email', 'draft_email'].includes(context.tool)) {
+        return textResult(
+          'This account was connected with read-only access, so this action is not permitted. Reconnect it from the dashboard and grant write access to enable delete/draft.',
+          true,
+        );
+      }
+
       return textResult('Could not reach Gmail right now. Please try again in a moment.', true);
     }
 
