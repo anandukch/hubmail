@@ -37,6 +37,9 @@ Multi-account Gmail MCP server. Connect one or more Gmail accounts, then let any
 | `read_email` | Fetches the full body and attachment list of a single email by message id. |
 | `delete_email` | Moves a single email to Trash by message id. Recoverable — not a permanent delete. Requires write access. |
 | `draft_email` | Creates a draft (to/subject/body) in a connected account. Does not send it. Requires write access. |
+| `create_label` | Creates a Gmail label. Idempotent — returns the existing label if the name already exists. Requires write access. |
+| `label_email` | Tags one or more emails with an existing label by message id. Emails stay in Inbox. Requires write access. |
+| `move_email_to_label` | Tags one or more emails with an existing label and archives them (removes INBOX), like moving mail into a folder. Requires write access. |
 
 **Read vs. write access**: connecting an account requests both `gmail.readonly` and `gmail.modify`. Google's consent screen lets the user deselect `gmail.modify` and keep the connection read-only — `search_emails`/`read_email`/`list_accounts` keep working, `delete_email`/`draft_email` fail with a clear "reconnect and grant write access" message until the account is reconnected with `gmail.modify` granted.
 

@@ -22,6 +22,11 @@ export interface EmailContent {
   attachmentFilenames: string[];
 }
 
+export interface GmailLabel {
+  id: string;
+  name: string;
+}
+
 const SUMMARY_HEADERS = ['Subject', 'From', 'Date'];
 
 @Injectable()
@@ -70,6 +75,41 @@ export class GmailService {
       gmail.users.drafts.create({ userId: 'me', requestBody: { message: { raw, threadId: input.threadId } } }),
     );
     return { draftId: draft.data.id ?? '', messageId: draft.data.message?.id ?? '' };
+  }
+
+  async listLabels(accessToken: string): Promise<GmailLabel[]> {
+    const gmail = buildGmailClient(accessToken);
+    const response = await this.call(() => gmail.users.labels.list({ userId: 'me' }));
+    return (response.data.labels ?? [])
+      .filter((l): l is gmail_v1.Schema$Label & { id: string; name: string } => !!l.id && !!l.name)
+      .map((l) => ({ id: l.id, name: l.name }));
+  }
+
+  /** Idempotent: returns the existing label if one with this name (case-insensitive) already exists. */
+  async findOrCreateLabel(accessToken: string, name: string): Promise<GmailLabel> {
+    const existing = await this.listLabels(accessToken);
+    const match = existing.find((l) => l.name.toLowerCase() === name.toLowerCase());
+    if (match) return match;
+
+    const gmail = buildGmailClient(accessToken);
+    const created = await this.call(() =>
+      gmail.users.labels.create({
+        userId: 'me',
+        requestBody: { name, labelListVisibility: 'labelShow', messageListVisibility: 'show' },
+      }),
+    );
+    return { id: created.data.id ?? '', name: created.data.name ?? name };
+  }
+
+  async modifyLabels(
+    accessToken: string,
+    messageId: string,
+    { addLabelIds, removeLabelIds }: { addLabelIds?: string[]; removeLabelIds?: string[] },
+  ): Promise<void> {
+    const gmail = buildGmailClient(accessToken);
+    await this.call(() =>
+      gmail.users.messages.modify({ userId: 'me', id: messageId, requestBody: { addLabelIds, removeLabelIds } }),
+    );
   }
 
   private toSummary(message: gmail_v1.Schema$Message): EmailSummary {

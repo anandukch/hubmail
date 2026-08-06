@@ -11,6 +11,9 @@ import { registerSearchEmailsTool } from './tools/search-emails.tool';
 import { registerReadEmailTool } from './tools/read-email.tool';
 import { registerDeleteEmailTool } from './tools/delete-email.tool';
 import { registerDraftEmailTool } from './tools/draft-email.tool';
+import { registerCreateLabelTool } from './tools/create-label.tool';
+import { registerLabelEmailTool } from './tools/label-email.tool';
+import { registerMoveEmailToLabelTool } from './tools/move-email-to-label.tool';
 
 @Injectable()
 export class McpServerFactory {
@@ -40,6 +43,9 @@ export class McpServerFactory {
     registerReadEmailTool(server, ctx);
     registerDeleteEmailTool(server, ctx);
     registerDraftEmailTool(server, ctx);
+    registerCreateLabelTool(server, ctx);
+    registerLabelEmailTool(server, ctx);
+    registerMoveEmailToLabelTool(server, ctx);
 
     return server;
   }
