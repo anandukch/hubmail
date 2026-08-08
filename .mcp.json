@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hubmail": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:3000/mcp/REPLACE_WITH_YOUR_MCP_USER_TOKEN"]
+    }
+  }
+}
