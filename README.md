@@ -126,6 +126,32 @@ docker run --rm \
 
 Tag it `hubmail:local` so it doesn't collide with a pulled `<user>/hubmail` image. `-p` must match `PORT` in your `.env` — the container listens on whatever `PORT` it's given via `--env-file`. Rebuild (`docker build ...` again) after every code change; the image won't reflect edits on its own.
 
+## Deployment
+
+`.github/workflows/deploy.yml` builds this project on every push to `main`, pushes the image to GitHub Container Registry (`ghcr.io/anandukch/hubmail:latest`), then SSHes into a DigitalOcean droplet and restarts it via `docker compose`.
+
+One-time droplet setup (before the first deploy):
+
+```bash
+mkdir -p /opt/hubmail
+# then create /opt/hubmail/.env on the droplet with production values
+# (see the env var table above — PORT, MONGODB_URI, GOOGLE_CLIENT_ID/SECRET, etc.)
+# set PUBLIC_BASE_URL=https://hubmail.anandu.xyz and GOOGLE_OAUTH_CALLBACK_URL accordingly
+```
+
+`docker-compose.yml` (repo root) is what gets copied to `/opt/hubmail/docker-compose.yml` and run there — it pulls `ghcr.io/anandukch/hubmail:latest`, reads `/opt/hubmail/.env`, and exposes port `3000`.
+
+**Nginx + TLS**: `config/nginx-hubmail.conf` reverse-proxies `hubmail.anandu.xyz` (port 80/443) to the container's `localhost:3000`. One-time setup on the droplet:
+
+```bash
+sudo cp config/nginx-hubmail.conf /etc/nginx/sites-available/hubmail.anandu.xyz
+sudo ln -s /etc/nginx/sites-available/hubmail.anandu.xyz /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d hubmail.anandu.xyz
+```
+
+Required GitHub repo secrets: `DO_HOST`, `DO_USER`, `DO_SSH_PRIVATE_KEY`.
+
 ## Connecting an MCP client
 
 1. Log in to the dashboard and connect a Gmail account.
