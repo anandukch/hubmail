@@ -40,8 +40,9 @@ Multi-account Gmail MCP server. Connect one or more Gmail accounts, then let any
 | `create_label` | Creates a Gmail label. Idempotent — returns the existing label if the name already exists. Requires write access. |
 | `label_email` | Tags one or more emails with an existing label by message id. Emails stay in Inbox. Requires write access. |
 | `move_email_to_label` | Tags one or more emails with an existing label and archives them (removes INBOX), like moving mail into a folder. Requires write access. |
+| `create_mail_filter` | Creates a Gmail filter so future mail matching a search query is auto-labeled (and optionally skips Inbox). Applies only to mail that arrives after creation, not existing mail. Requires write access. |
 
-**Read vs. write access**: connecting an account requests both `gmail.readonly` and `gmail.modify`. Google's consent screen lets the user deselect `gmail.modify` and keep the connection read-only — `search_emails`/`read_email`/`list_accounts` keep working, `delete_email`/`draft_email` fail with a clear "reconnect and grant write access" message until the account is reconnected with `gmail.modify` granted.
+**Read vs. write access**: connecting an account requests both `gmail.readonly` and `gmail.modify`. Google's consent screen lets the user deselect `gmail.modify` and keep the connection read-only — `search_emails`/`read_email`/`list_accounts` keep working, the write tools (`delete_email`, `draft_email`, `create_label`, `label_email`, `move_email_to_label`, `create_mail_filter`) fail with a clear "reconnect and grant write access" message until the account is reconnected with `gmail.modify` granted.
 
 ## Prerequisites
 
@@ -158,20 +159,22 @@ Required GitHub repo secrets: `DO_HOST`, `DO_USER`, `DO_SSH_PRIVATE_KEY`.
 2. Copy the connector URL shown on the dashboard (`PUBLIC_BASE_URL/mcp/<token>`).
 3. Add it to your client's MCP config.
 
-**Claude Desktop / Claude Code** (`claude_desktop_config.json` or `.mcp.json`):
+**Claude Desktop** (`claude_desktop_config.json`) and **Claude Code** (`.mcp.json`) only support local stdio server entries (`command`/`args`) in their config files — a bare `"url"`/`"type": "http"` entry gets silently rejected as invalid. For a remote HTTP server like this one, bridge it through [`mcp-remote`](https://www.npmjs.com/package/mcp-remote):
 
 ```json
 {
   "mcpServers": {
     "hubmail": {
-      "type": "http",
-      "url": "http://localhost:3000/mcp/<your-mcp-user-token>"
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://your-domain.example/mcp/<your-mcp-user-token>"]
     }
   }
 }
 ```
 
-Local HTTP URLs work for Claude Desktop/Code. Remote clients that require HTTPS (e.g. claude.ai custom connectors) need the server deployed behind TLS or tunneled (ngrok, cloudflared, etc).
+Fully quit and reopen the client after editing — the config is only read at launch.
+
+Adding the URL directly through Settings → Connectors → "Add custom connector" instead will get stuck on "not connected" — that flow expects the server to implement an OAuth authorization handshake, which this server doesn't (it only does Google OAuth, for Gmail access itself). The `mcp-remote` route above bypasses that entirely.
 
 ## Security
 

@@ -35,9 +35,10 @@ export async function withToolErrorHandling(
         message: err.message,
       });
 
-      if (err.status === 403 && ['delete_email', 'draft_email'].includes(context.tool)) {
+      const writeTools = ['delete_email', 'draft_email', 'create_label', 'label_email', 'move_email_to_label', 'create_mail_filter'];
+      if (err.status === 403 && writeTools.includes(context.tool)) {
         return textResult(
-          'This account was connected with read-only access, so this action is not permitted. Reconnect it from the dashboard and grant write access to enable delete/draft.',
+          'This account was connected with read-only access, so this action is not permitted. Reconnect it from the dashboard and grant write access to enable this.',
           true,
         );
       }

@@ -112,6 +112,24 @@ export class GmailService {
     );
   }
 
+  /** Creates a Gmail filter: future mail matching `query` (Gmail search syntax) gets `labelId` applied automatically. */
+  async createFilter(
+    accessToken: string,
+    { query, labelId, skipInbox }: { query: string; labelId: string; skipInbox: boolean },
+  ): Promise<{ filterId: string }> {
+    const gmail = buildGmailClient(accessToken);
+    const filter = await this.call(() =>
+      gmail.users.settings.filters.create({
+        userId: 'me',
+        requestBody: {
+          criteria: { query },
+          action: { addLabelIds: [labelId], removeLabelIds: skipInbox ? ['INBOX'] : undefined },
+        },
+      }),
+    );
+    return { filterId: filter.data.id ?? '' };
+  }
+
   private toSummary(message: gmail_v1.Schema$Message): EmailSummary {
     const headers = message.payload?.headers ?? [];
     return {
