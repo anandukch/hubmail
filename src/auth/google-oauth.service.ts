@@ -11,9 +11,12 @@ import { AppLoggerService } from '../common/app-logger.service';
 
 const GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
 const GMAIL_MODIFY_SCOPE = 'https://www.googleapis.com/auth/gmail.modify';
-// Requested together so Google's consent screen lets the user deselect gmail.modify
-// and keep only gmail.readonly — write access (delete/draft) becomes opt-in per account.
-const SCOPES = [GMAIL_READONLY_SCOPE, GMAIL_MODIFY_SCOPE, 'openid', 'email'];
+// gmail.modify covers messages/labels but NOT filters — users.settings.filters.create needs
+// its own scope, or create_mail_filter 403s even with modify granted.
+const GMAIL_SETTINGS_SCOPE = 'https://www.googleapis.com/auth/gmail.settings.basic';
+// Requested together so Google's consent screen lets the user deselect gmail.modify/settings
+// and keep only gmail.readonly — write access (delete/draft/filters) becomes opt-in per account.
+const SCOPES = [GMAIL_READONLY_SCOPE, GMAIL_MODIFY_SCOPE, GMAIL_SETTINGS_SCOPE, 'openid', 'email'];
 
 export class NoRefreshTokenError extends Error {
   constructor() {
