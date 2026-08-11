@@ -10,3 +10,7 @@ npm-debug.log*
 coverage/
 .vscode/
 *.tsbuildinfo
+scripts/*.js
+scripts/*.js.map
+test/*.js
+test/*.js.map

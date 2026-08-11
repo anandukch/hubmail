@@ -65,8 +65,9 @@ Environment variables (`.env`):
 | `PORT` | Port the API listens on (default `3000`) |
 | `MONGODB_URI` | MongoDB connection string |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 2.0 credentials |
-| `GOOGLE_OAUTH_CALLBACK_URL` | Must exactly match the redirect URI configured on the Google OAuth client |
+| `GOOGLE_REDIRECT_URI` | Must exactly match the redirect URI configured on the Google OAuth client |
 | `PUBLIC_BASE_URL` | Public base URL of this server, used to build each user's `/mcp/:userToken` connector URL |
+| `CLIENT_URL` | Optional. Dashboard origin for OAuth redirects when the web SPA runs on a separate dev port. Falls back to `PUBLIC_BASE_URL`; leave unset in production |
 | `TOKEN_ENCRYPTION_KEY` | 32-byte hex key for encrypting stored Gmail OAuth tokens (`openssl rand -hex 32`) |
 | `JWT_SECRET` | Secret used to sign session JWTs |
 
@@ -137,7 +138,7 @@ One-time droplet setup (before the first deploy):
 mkdir -p /opt/hubmail
 # then create /opt/hubmail/.env on the droplet with production values
 # (see the env var table above — PORT, MONGODB_URI, GOOGLE_CLIENT_ID/SECRET, etc.)
-# set PUBLIC_BASE_URL=https://hubmail.anandu.xyz and GOOGLE_OAUTH_CALLBACK_URL accordingly
+# set PUBLIC_BASE_URL=https://hubmail.anandu.xyz and GOOGLE_REDIRECT_URI accordingly
 ```
 
 `docker-compose.yml` (repo root) is what gets copied to `/opt/hubmail/docker-compose.yml` and run there — it pulls `ghcr.io/anandukch/hubmail:latest`, reads `/opt/hubmail/.env`, and exposes port `3000`.
