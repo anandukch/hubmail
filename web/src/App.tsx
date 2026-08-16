@@ -88,6 +88,9 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[] | null>(null);
   const [alias, setAlias] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [editingAlias, setEditingAlias] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [renameError, setRenameError] = useState<string | null>(null);
   const connectorUrl = user.mcpConnectorUrl;
 
   async function refresh() {
@@ -107,6 +110,37 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
   async function handleLogout() {
     await api.logout();
     onLoggedOut();
+  }
+
+  function startRename(currentAlias: string) {
+    setEditingAlias(currentAlias);
+    setRenameValue(currentAlias);
+    setRenameError(null);
+  }
+
+  function cancelRename() {
+    setEditingAlias(null);
+    setRenameError(null);
+  }
+
+  async function handleRename(e: React.FormEvent, currentAlias: string) {
+    e.preventDefault();
+    const trimmed = renameValue.trim().toLowerCase();
+    if (!/^[a-z0-9-_]{1,40}$/.test(trimmed)) {
+      setRenameError('Alias must be 1-40 characters: letters, numbers, - or _');
+      return;
+    }
+    if (trimmed === currentAlias) {
+      setEditingAlias(null);
+      return;
+    }
+    try {
+      await api.renameAccount(currentAlias, trimmed);
+      setEditingAlias(null);
+      await refresh();
+    } catch (err) {
+      setRenameError(err instanceof Error ? err.message : 'Could not rename account.');
+    }
   }
 
   function handleConnect(e: React.FormEvent) {
@@ -139,7 +173,28 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
           <ul className="account-list">
             {accounts.map((a) => (
               <li key={a.alias}>
-                <span className="alias">{a.alias}</span>
+                {editingAlias === a.alias ? (
+                  <form className="rename-form" onSubmit={(e) => handleRename(e, a.alias)}>
+                    <input
+                      type="text"
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      autoFocus
+                    />
+                    <button type="submit">Save</button>
+                    <button type="button" className="link-button" onClick={cancelRename}>
+                      Cancel
+                    </button>
+                    {renameError && <span className="error-text">{renameError}</span>}
+                  </form>
+                ) : (
+                  <>
+                    <span className="alias">{a.alias}</span>
+                    <button type="button" className="link-button rename-link" onClick={() => startRename(a.alias)}>
+                      Rename
+                    </button>
+                  </>
+                )}
                 <span className="google-email">{a.googleEmail}</span>
                 <span className={`status status-${a.status}`}>
                   {a.status === 'ok' ? 'Connected' : 'Needs reconnect'}

@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -85,6 +85,29 @@ export class AuthService {
       .select('alias googleEmail status')
       .sort({ alias: 1 });
     return accounts.map((a) => ({ alias: a.alias, googleEmail: a.googleEmail, status: a.status }));
+  }
+
+  async renameAccount(userId: string, alias: string, newAlias: string): Promise<ConnectedAccountSummary> {
+    if (alias === newAlias) {
+      const account = await this.connectedAccountModel.findOne({ userId: new Types.ObjectId(userId), alias });
+      if (!account) throw new NotFoundException(`No account named '${alias}' is connected`);
+      return { alias: account.alias, googleEmail: account.googleEmail, status: account.status };
+    }
+
+    const account = await this.connectedAccountModel.findOne({ userId: new Types.ObjectId(userId), alias });
+    if (!account) {
+      throw new NotFoundException(`No account named '${alias}' is connected`);
+    }
+
+    const clash = await this.connectedAccountModel.findOne({ userId: new Types.ObjectId(userId), alias: newAlias });
+    if (clash) {
+      throw new ConflictException(`An account named '${newAlias}' already exists`);
+    }
+
+    account.alias = newAlias;
+    await account.save();
+
+    return { alias: account.alias, googleEmail: account.googleEmail, status: account.status };
   }
 
   async getAuditLogs(userId: string, limit = 100) {

@@ -207,6 +207,33 @@ button[type='submit']:disabled {
   color: var(--accent);
 }
 
+.rename-link {
+  margin-top: 0;
+  font-size: 0.85rem;
+}
+
+.rename-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.rename-form input {
+  min-width: 6rem;
+  padding: 0.3rem 0.5rem;
+}
+
+.rename-form button[type='submit'] {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.rename-form .link-button {
+  margin-top: 0;
+  font-size: 0.85rem;
+}
+
 .connect-form {
   display: flex;
   gap: 0.5rem;

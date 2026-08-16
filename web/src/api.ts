@@ -47,6 +47,13 @@ export function connectAccountUrl(alias: string): string {
   return `/oauth/google/connect?alias=${encodeURIComponent(alias)}`;
 }
 
+export function renameAccount(alias: string, newAlias: string): Promise<ConnectedAccountSummary> {
+  return request(`/auth/accounts/${encodeURIComponent(alias)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ newAlias }),
+  });
+}
+
 export interface AuditLogEntry {
   _id: string;
   tool: string;

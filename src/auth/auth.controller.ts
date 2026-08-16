@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Res, UseGuards } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { RenameAccountDto } from './dto/rename-account.dto';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { CurrentUser, type RequestUser } from '../common/current-user.decorator';
 import { AppConfig } from '../config/configuration';
@@ -58,6 +59,16 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   listAccounts(@CurrentUser() user: RequestUser) {
     return this.authService.listConnectedAccounts(user.userId);
+  }
+
+  @Patch('accounts/:alias')
+  @UseGuards(JwtAuthGuard)
+  renameAccount(
+    @CurrentUser() user: RequestUser,
+    @Param('alias') alias: string,
+    @Body() dto: RenameAccountDto,
+  ) {
+    return this.authService.renameAccount(user.userId, alias.toLowerCase(), dto.newAlias);
   }
 
   @Get('audit-logs')
