@@ -55,6 +55,13 @@ export class AuthController {
     return { ...result, mcpConnectorUrl: this.mcpUrl(result.mcpUserToken) };
   }
 
+  @Post('mcp-token/regenerate')
+  @UseGuards(JwtAuthGuard)
+  async regenerateMcpToken(@CurrentUser() user: RequestUser) {
+    const result = await this.authService.regenerateMcpUserToken(user.userId);
+    return { ...result, mcpConnectorUrl: this.mcpUrl(result.mcpUserToken) };
+  }
+
   @Get('accounts')
   @UseGuards(JwtAuthGuard)
   listAccounts(@CurrentUser() user: RequestUser) {

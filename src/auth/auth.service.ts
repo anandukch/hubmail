@@ -79,6 +79,16 @@ export class AuthService {
     return { email: user.email, mcpUserToken: user.mcpUserToken };
   }
 
+  async regenerateMcpUserToken(userId: string): Promise<{ email: string; mcpUserToken: string }> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Invalid session');
+    }
+    user.mcpUserToken = randomBytes(32).toString('base64url');
+    await user.save();
+    return { email: user.email, mcpUserToken: user.mcpUserToken };
+  }
+
   async listConnectedAccounts(userId: string): Promise<ConnectedAccountSummary[]> {
     const accounts = await this.connectedAccountModel
       .find({ userId: new Types.ObjectId(userId) })

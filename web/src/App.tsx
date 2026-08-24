@@ -91,7 +91,9 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
   const [editingAlias, setEditingAlias] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [renameError, setRenameError] = useState<string | null>(null);
-  const connectorUrl = user.mcpConnectorUrl;
+  const [connectorUrl, setConnectorUrl] = useState(user.mcpConnectorUrl);
+  const [regenBusy, setRegenBusy] = useState(false);
+  const [regenError, setRegenError] = useState<string | null>(null);
 
   async function refresh() {
     try {
@@ -140,6 +142,22 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
       await refresh();
     } catch (err) {
       setRenameError(err instanceof Error ? err.message : 'Could not rename account.');
+    }
+  }
+
+  async function handleRegenerate() {
+    if (!window.confirm('Regenerate connector URL? The old URL will stop working immediately, and any connector using it must be re-added with the new URL.')) {
+      return;
+    }
+    setRegenError(null);
+    setRegenBusy(true);
+    try {
+      const result = await api.regenerateMcpToken();
+      setConnectorUrl(result.mcpConnectorUrl);
+    } catch (err) {
+      setRegenError(err instanceof Error ? err.message : 'Could not regenerate URL.');
+    } finally {
+      setRegenBusy(false);
     }
   }
 
@@ -221,6 +239,11 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
         <h2>Claude connector URL</h2>
         <p>Paste this into Claude.ai or Claude Desktop as a custom MCP connector.</p>
         <code className="connector-url">{connectorUrl}</code>
+        {regenError && <p className="error-text">{regenError}</p>}
+        <button type="button" className="link-button" onClick={handleRegenerate} disabled={regenBusy}>
+          {regenBusy ? 'Regenerating…' : 'Regenerate URL'}
+        </button>
+        <p className="hint">If this URL leaked, regenerate it. The old URL stops working right away.</p>
       </section>
 
       <section className="card">

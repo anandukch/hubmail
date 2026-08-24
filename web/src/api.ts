@@ -66,3 +66,7 @@ export interface AuditLogEntry {
 export function getAuditLogs(): Promise<AuditLogEntry[]> {
   return request('/auth/audit-logs');
 }
+
+export function regenerateMcpToken(): Promise<CurrentUser> {
+  return request('/auth/mcp-token/regenerate', { method: 'POST' });
+}
