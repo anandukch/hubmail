@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as api from './api';
-import type { ConnectedAccountSummary, CurrentUser, AuditLogEntry } from './api';
+import type { ConnectedAccountSummary, CurrentUser } from './api';
 import LandingPage from './LandingPage';
 import './App.css';
 
@@ -443,12 +443,94 @@ function SecuritySection({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut
   );
 }
 
+const AUDIT_PAGE_SIZE = 10;
+
+function AuditLogTab() {
+  const [data, setData] = useState<api.PaginatedAuditLogs | null>(null);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setBusy(true);
+    setError(null);
+    api
+      .getAuditLogs(page, AUDIT_PAGE_SIZE)
+      .then((result) => {
+        if (!cancelled) setData(result);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load audit log.');
+      })
+      .finally(() => {
+        if (!cancelled) setBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [page]);
+
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.limit)) : 1;
+
+  return (
+    <section className="card">
+      <h2>Audit log</h2>
+      <p>Every time Claude accessed your inbox via hubmail.</p>
+      {error && <p className="error-text">{error}</p>}
+      {!data ? (
+        <p>Loading…</p>
+      ) : data.items.length === 0 ? (
+        <p>No activity yet.</p>
+      ) : (
+        <>
+          <ul className="audit-list">
+            {data.items.map((entry) => (
+              <li key={entry._id} className="audit-entry">
+                <span className="audit-tool">{entry.tool}</span>
+                <span className="audit-alias">{entry.alias ?? '—'}</span>
+                <span className="audit-meta">
+                  {entry.metadata?.query ? `"${String(entry.metadata.query)}"` : ''}
+                </span>
+                <span className="audit-time-block">
+                  <span className="audit-time">{new Date(entry.createdAt).toLocaleString()}</span>
+                  <span className="audit-ip">{entry.ip ?? ''}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="pagination">
+            <button
+              type="button"
+              className="btn btn-outline"
+              disabled={page <= 1 || busy}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </button>
+            <span className="pagination-status">
+              Page {data.page} of {totalPages} ({data.total} total)
+            </span>
+            <button
+              type="button"
+              className="btn btn-outline"
+              disabled={page >= totalPages || busy}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
 type DashboardTab = 'overview' | 'security' | 'audit';
 
 function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () => void }) {
   const [tab, setTab] = useState<DashboardTab>('overview');
   const [accounts, setAccounts] = useState<ConnectedAccountSummary[] | null>(null);
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[] | null>(null);
   const [alias, setAlias] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [editingAlias, setEditingAlias] = useState<string | null>(null);
@@ -460,9 +542,7 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
 
   async function refresh() {
     try {
-      const [accts, logs] = await Promise.all([api.listAccounts(), api.getAuditLogs()]);
-      setAccounts(accts);
-      setAuditLogs(logs);
+      setAccounts(await api.listAccounts());
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Could not load accounts.');
     }
@@ -643,31 +723,7 @@ function Dashboard({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut: () =
 
       {tab === 'security' && <SecuritySection user={user} onLoggedOut={onLoggedOut} />}
 
-      {tab === 'audit' && (
-        <section className="card">
-          <h2>Audit log</h2>
-          <p>Every time Claude accessed your inbox via hubmail.</p>
-          {auditLogs === null ? (
-            <p>Loading…</p>
-          ) : auditLogs.length === 0 ? (
-            <p>No activity yet.</p>
-          ) : (
-            <ul className="audit-list">
-              {auditLogs.map((entry) => (
-                <li key={entry._id} className="audit-entry">
-                  <span className="audit-tool">{entry.tool}</span>
-                  {entry.alias && <span className="audit-alias">{entry.alias}</span>}
-                  {Boolean(entry.metadata?.query) && (
-                    <span className="audit-meta">"{String(entry.metadata?.query)}"</span>
-                  )}
-                  <span className="audit-time">{new Date(entry.createdAt).toLocaleString()}</span>
-                  {entry.ip && <span className="audit-ip">{entry.ip}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
+      {tab === 'audit' && <AuditLogTab />}
     </div>
   );
 }

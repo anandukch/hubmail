@@ -75,8 +75,15 @@ export interface AuditLogEntry {
   createdAt: string;
 }
 
-export function getAuditLogs(): Promise<AuditLogEntry[]> {
-  return request('/auth/audit-logs');
+export interface PaginatedAuditLogs {
+  items: AuditLogEntry[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export function getAuditLogs(page = 1, limit = 20): Promise<PaginatedAuditLogs> {
+  return request(`/auth/audit-logs?page=${page}&limit=${limit}`);
 }
 
 export function regenerateMcpToken(): Promise<CurrentUser> {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
@@ -10,6 +10,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { MfaEnableDto } from './dto/mfa-enable.dto';
 import { MfaDisableDto } from './dto/mfa-disable.dto';
 import { RenameAccountDto } from './dto/rename-account.dto';
+import { AuditLogQueryDto } from './dto/audit-log-query.dto';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { CurrentUser, type RequestUser } from '../common/current-user.decorator';
 import { AppConfig } from '../config/configuration';
@@ -139,8 +140,8 @@ export class AuthController {
 
   @Get('audit-logs')
   @UseGuards(JwtAuthGuard)
-  auditLogs(@CurrentUser() user: RequestUser) {
-    return this.authService.getAuditLogs(user.userId);
+  auditLogs(@CurrentUser() user: RequestUser, @Query() query: AuditLogQueryDto) {
+    return this.authService.getAuditLogs(user.userId, query.page ?? 1, query.limit ?? 20);
   }
 
   private setSessionCookie(res: Response, token: string) {

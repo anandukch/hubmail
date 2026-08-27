@@ -18,6 +18,23 @@ export interface ConnectedAccountSummary {
   status: 'ok' | 'reauth_required';
 }
 
+export interface AuditLogEntry {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  tool: string;
+  alias?: string;
+  metadata?: Record<string, unknown>;
+  ip?: string;
+  createdAt: Date;
+}
+
+export interface PaginatedAuditLogs {
+  items: AuditLogEntry[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 const BCRYPT_ROUNDS = 12;
 const SESSION_TTL = '24h';
 const MFA_PENDING_TTL = '5m';
@@ -244,13 +261,19 @@ export class AuthService {
     return { alias: account.alias, googleEmail: account.googleEmail, status: account.status };
   }
 
-  async getAuditLogs(userId: string, limit = 100) {
-    return this.auditLogModel
-      .find({ userId: new Types.ObjectId(userId) })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean()
-      .exec();
+  async getAuditLogs(userId: string, page: number, limit: number): Promise<PaginatedAuditLogs> {
+    const filter = { userId: new Types.ObjectId(userId) };
+    const [items, total] = await Promise.all([
+      this.auditLogModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean<AuditLogEntry[]>()
+        .exec(),
+      this.auditLogModel.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
   }
 
   private async registerFailedLogin(user: UserDocument): Promise<void> {
