@@ -5,6 +5,8 @@ import { GoogleOauthService } from './google-oauth.service';
 import { TokenRefreshService } from './token-refresh.service';
 import { EncryptionService } from './encryption.service';
 import { OauthStateService } from './oauth-state.service';
+import { SessionService } from './session.service';
+import { MfaService } from './mfa.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User, UserSchema } from './schemas/user.schema';
@@ -20,7 +22,15 @@ import { AuditLog, AuditLogSchema } from './schemas/audit-log.schema';
     ]),
   ],
   controllers: [GoogleOauthController, AuthController],
-  providers: [GoogleOauthService, TokenRefreshService, EncryptionService, OauthStateService, AuthService],
-  exports: [TokenRefreshService, MongooseModule],
+  providers: [
+    GoogleOauthService,
+    TokenRefreshService,
+    EncryptionService,
+    OauthStateService,
+    SessionService,
+    MfaService,
+    AuthService,
+  ],
+  exports: [TokenRefreshService, SessionService, MongooseModule],
 })
 export class AuthModule {}

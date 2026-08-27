@@ -2,7 +2,15 @@ export interface CurrentUser {
   email: string;
   mcpUserToken: string;
   mcpConnectorUrl: string;
+  mfaEnabled?: boolean;
 }
+
+export interface MfaRequired {
+  mfaRequired: true;
+  mfaToken: string;
+}
+
+export type LoginResult = CurrentUser | MfaRequired;
 
 export interface ConnectedAccountSummary {
   alias: string;
@@ -27,8 +35,12 @@ export function signup(email: string, password: string): Promise<CurrentUser> {
   return request('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password }) });
 }
 
-export function login(email: string, password: string): Promise<CurrentUser> {
+export function login(email: string, password: string): Promise<LoginResult> {
   return request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+}
+
+export function loginMfa(mfaToken: string, code: string): Promise<CurrentUser> {
+  return request('/auth/login/mfa', { method: 'POST', body: JSON.stringify({ mfaToken, code }) });
 }
 
 export function logout(): Promise<{ ok: boolean }> {
@@ -69,4 +81,32 @@ export function getAuditLogs(): Promise<AuditLogEntry[]> {
 
 export function regenerateMcpToken(): Promise<CurrentUser> {
   return request('/auth/mcp-token/regenerate', { method: 'POST' });
+}
+
+export function changePassword(currentPassword: string, newPassword: string): Promise<{ ok: boolean }> {
+  return request('/auth/change-password', {
+    method: 'PATCH',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+export function revokeAllSessions(): Promise<{ ok: boolean }> {
+  return request('/auth/sessions/revoke-all', { method: 'POST' });
+}
+
+export interface MfaSetup {
+  secret: string;
+  qrDataUrl: string;
+}
+
+export function setupMfa(): Promise<MfaSetup> {
+  return request('/auth/mfa/setup', { method: 'POST' });
+}
+
+export function enableMfa(secret: string, code: string): Promise<{ recoveryCodes: string[] }> {
+  return request('/auth/mfa/enable', { method: 'POST', body: JSON.stringify({ secret, code }) });
+}
+
+export function disableMfa(password: string): Promise<{ ok: boolean }> {
+  return request('/auth/mfa/disable', { method: 'POST', body: JSON.stringify({ password }) });
 }

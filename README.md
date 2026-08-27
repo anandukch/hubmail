@@ -179,8 +179,10 @@ Adding the URL directly through Settings → Connectors → "Add custom connecto
 
 ## Security
 
-- **Passwords**: hashed with bcrypt, never stored in plaintext.
-- **Sessions**: signed JWT (`typ: session`) in an `httpOnly`, `sameSite=lax` cookie; `secure` in production.
+- **Passwords**: hashed with bcrypt (cost 12), never stored in plaintext. Minimum 12 characters, no composition rules — current NIST guidance favors length over forced complexity, and length is what actually resists offline attack.
+- **Account lockout**: 5 failed login attempts locks the account for 15 minutes, independent of the per-IP rate limit below — defends against distributed/credential-stuffing attempts that a single-IP throttle wouldn't catch. Logged to the account's own audit log as `auth.lockout`.
+- **Sessions**: signed JWT (`typ: session`) in an `httpOnly`, `sameSite=lax` cookie; `secure` in production. Each token carries a `sessionVersion` claim checked against the user's current value on every request — changing your password or hitting "Log out everywhere" (`POST /auth/sessions/revoke-all`) immediately invalidates every other outstanding session, not just this one, without needing to rotate `JWT_SECRET` for all users.
+- **Two-factor authentication (TOTP)**: optional, enable from the dashboard. Adds a second login step (`POST /auth/login/mfa`) using any standard authenticator app. 10 single-use recovery codes are issued once at setup for lost-device recovery; if those are also exhausted, the self-hosting operator can clear MFA directly in MongoDB: `db.users.updateOne({email}, {$set: {mfaEnabled: false}, $unset: {mfaSecret: 1, mfaRecoveryCodeHashes: 1}})`.
 - **OAuth CSRF protection**: the Google OAuth `state` param is itself a short-lived (5 min) signed JWT (`typ: oauth_state`) carrying `userId` + `alias` + a random nonce, verified on callback.
 - **Gmail refresh tokens**: encrypted at rest with AES-256-GCM (`TOKEN_ENCRYPTION_KEY`) before being written to MongoDB; access tokens are cached and refreshed on demand.
 - **MCP access**: each user gets an unguessable, random per-user token (`mcpUserToken`, 32 random bytes) baked into their connector URL (`/mcp/:userToken`) instead of a login flow — anyone with the URL can call the tools, so treat it like a password.
