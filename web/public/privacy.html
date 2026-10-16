@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hubmail — Privacy Policy</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #1a1a1a; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.2rem; margin-top: 2rem; }
+    .updated { color: #666; font-size: 0.9rem; margin-bottom: 2rem; }
+    ul { padding-left: 1.2rem; }
+    code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>Hubmail Privacy Policy</h1>
+  <p class="updated">Last updated: 16 October 2026</p>
+
+  <p>
+    Hubmail ("we", "our", "the service") is a multi-account Gmail connector that lets you
+    search, read, and manage email across one or more Gmail accounts through AI
+    assistants and other tools that support the Model Context Protocol (MCP). This
+    page explains what data Hubmail accesses, how it is used, and how it is protected.
+  </p>
+
+  <h2>Data we access from Google</h2>
+  <p>
+    When you connect a Gmail account to Hubmail, you grant access to the following
+    Google OAuth scopes:
+  </p>
+  <ul>
+    <li><code>gmail.readonly</code> — read your email messages and labels</li>
+    <li><code>gmail.modify</code> — move, label, delete (trash), and draft messages, and create labels and filters, on your explicit request</li>
+    <li><code>gmail.settings.basic</code> — read and manage basic Gmail settings (e.g. filters)</li>
+    <li><code>openid</code> / <code>userinfo.email</code> — identify your Google account email address during sign-in</li>
+  </ul>
+  <p>
+    You can grant read-only access by deselecting write permissions on Google's
+    consent screen; in that case, write-capable actions (delete, draft, label, filter
+    creation) are disabled for that account until you reconnect with write access.
+  </p>
+
+  <h2>How we use your data</h2>
+  <p>
+    Hubmail uses Google user data solely to provide the features you explicitly
+    request: searching your mailbox, reading a specific message, and performing the
+    write actions listed above when you ask an AI assistant to take them. Email
+    content is fetched live from the Gmail API for each request and is not stored by
+    Hubmail. We do not use your email content or metadata for advertising, and we do
+    not sell or share it with third parties, except as necessary to operate the
+    service (e.g. calls to the Gmail API itself).
+  </p>
+  <p>
+    <strong>Hubmail's use and transfer of information received from Google APIs
+    adheres to the
+    <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>,
+    including the Limited Use requirements.</strong>
+  </p>
+
+  <h2>What we store</h2>
+  <ul>
+    <li>Your account details: email address and a bcrypt-hashed password (if you sign up with a password).</li>
+    <li>Your Gmail OAuth refresh token, encrypted at rest with AES-256-GCM, used to obtain short-lived access tokens on your behalf.</li>
+    <li>Connected account aliases (e.g. "work", "personal") you assign when connecting a Gmail account.</li>
+    <li>An audit log of tool calls made against your account — which tool was used, which account alias, the parameters involved (e.g. a search query string or a message ID), the requesting IP address, and a timestamp. This log does not contain email body content or attachments.</li>
+  </ul>
+  <p>
+    We do not store the body, attachments, or full content of your email messages.
+    Each read or search request is served live from the Gmail API and returned
+    directly to the requesting client.
+  </p>
+
+  <h2>Data retention and deletion</h2>
+  <p>
+    Your account data, encrypted tokens, and audit logs are retained until you delete
+    your Hubmail account or disconnect a Gmail account from the dashboard. You can
+    also revoke Hubmail's access at any time from your
+    <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions page</a>,
+    which immediately invalidates our ability to access that account.
+  </p>
+
+  <h2>Security</h2>
+  <ul>
+    <li>Gmail refresh tokens are encrypted at rest with AES-256-GCM.</li>
+    <li>Passwords are hashed with bcrypt and never stored in plaintext.</li>
+    <li>Your personal MCP connector URL contains a random, unguessable token — treat it like a password, since anyone with it can call the tools on your behalf.</li>
+    <li>All traffic to Hubmail is served over HTTPS.</li>
+  </ul>
+
+  <h2>Children's privacy</h2>
+  <p>Hubmail is not directed at children under 13 and does not knowingly collect data from them.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>We may update this policy from time to time. Material changes will be reflected by updating the "Last updated" date above.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy or your data: <a href="mailto:anandudevops@gmail.com">anandudevops@gmail.com</a></p>
+</body>
+</html>
