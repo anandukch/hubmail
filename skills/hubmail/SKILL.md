@@ -58,4 +58,12 @@ Notes:
 - `create_label` is idempotent — safe to call even if the label may already exist.
 - Every tool call is audit-logged server-side (user, tool, account, timestamp), visible to the user at `GET /auth/audit-logs` — no extra action needed from the agent, just be aware actions are traceable.
 
+## Presenting results
+
+`search_emails` already returns its results as a markdown table (date, from, subject, snippet, id) and `read_email` returns a structured `### Message detail` block (Subject/From/Date/Body). Relay these as-is rather than re-flattening them into plain prose — the table and headings are there so the user can scan multiple results or a full message at a glance.
+
+This applies even to open-ended asks like "list yesterday's mail" or "what's in my inbox" — call `search_emails`, then show the (possibly filtered-down) result set **as a table**, not as a bullet-point summary. You may drop rows that aren't relevant and add a short sentence of framing above or below the table, but don't collapse the remaining rows into prose bullets — the table is the answer, not a prose paraphrase of it.
+
+After showing a message's detail, suggest 2–3 concrete next steps grounded in what the tool call actually supports — e.g. drafting a reply (`draft_email`), applying a label (`label_email`/`create_label`), or setting up a filter for similar future mail (`create_mail_filter`). Keep suggestions specific to the message's content (sender, subject, apparent intent), not generic boilerplate, and don't take any write action until the user picks one.
+
 See [references/TOOLS.md](references/TOOLS.md) for the full per-tool parameter reference.

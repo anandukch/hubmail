@@ -48,9 +48,16 @@ export function registerReadEmailTool(server: McpServer, ctx: ToolContext): void
         const email = await ctx.gmail.getMessage(accessToken, message_id);
 
         const attachmentsLine = email.attachmentFilenames.length
-          ? `Attachments: ${email.attachmentFilenames.join(', ')}\n`
+          ? `\n**Attachments:** ${email.attachmentFilenames.join(', ')}`
           : '';
-        const text = `Subject: ${email.subject}\nFrom: ${email.sender}\nDate: ${email.date}\n${attachmentsLine}\n${email.body}`;
+        const text = [
+          `### Message detail: ${message_id}`,
+          `**Subject:** ${email.subject}`,
+          `**From:** ${email.sender}`,
+          `**Date:** ${email.date}`,
+          `**Body:**`,
+          email.body,
+        ].join('\n') + attachmentsLine;
 
         return {
           content: [{ type: 'text', text }],

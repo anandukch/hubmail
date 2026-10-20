@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ToolContext } from '../tool-context';
 import { withToolErrorHandling } from '../mcp-error-mapper.util';
+import { mdCell } from '../markdown.util';
 
 export function registerSearchEmailsTool(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
@@ -59,9 +60,16 @@ export function registerSearchEmailsTool(server: McpServer, ctx: ToolContext): v
         const text =
           results.length === 0
             ? `No messages matched "${query}" in '${resolution.alias}'.`
-            : results
-                .map((r) => `[${r.messageId}] ${r.subject} — ${r.sender} (${r.date})\n  ${r.snippet}`)
-                .join('\n\n');
+            : [
+                `## Email search results: ${resolution.alias}`,
+                '',
+                '| Date | From | Subject | Snippet | ID |',
+                '| :--- | :--- | :--- | :--- | :--- |',
+                ...results.map(
+                  (r) =>
+                    `| ${mdCell(r.date)} | ${mdCell(r.sender)} | ${mdCell(r.subject)} | ${mdCell(r.snippet)} | ${mdCell(r.messageId)} |`,
+                ),
+              ].join('\n');
 
         return {
           content: [{ type: 'text', text }],
