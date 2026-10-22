@@ -1,42 +1,25 @@
 :root {
-  --bg: #ffffff;
-  --fg: #111318;
-  --fg-muted: #5b616e;
-  --card-bg: #ffffff;
-  --card-border: #e2e4e9;
-  --input-bg: #ffffff;
-  --input-border: #cbd0d9;
-  --code-bg: #f3f4f6;
-  --code-fg: #111318;
-  --accent: #2563eb;
-  --success-bg: #d1fae5;
-  --success-fg: #065f46;
-  --error-bg: #fee2e2;
-  --error-fg: #991b1b;
-  --divider: #edeef1;
+  /* Fixed dark theme — matches the landing page and auth screens; not OS-adaptive,
+     so the whole logged-in experience stays one consistent brand, not just the
+     marketing/login pages. */
+  --bg: #0a0a0f;
+  --fg: #f2f2f5;
+  --fg-muted: #8a8a98;
+  --card-bg: #111118;
+  --card-border: #1f1f29;
+  --input-bg: #0a0a0f;
+  --input-border: #26262f;
+  --code-bg: #1a1a22;
+  --code-fg: #e8e8ec;
+  --accent: #6366f1;
+  --success-bg: #113328;
+  --success-fg: #6ee7b7;
+  --error-bg: #3a1414;
+  --error-fg: #fca5a5;
+  --divider: #1f1f29;
 
-  color-scheme: light dark;
+  color-scheme: dark;
   font-family: system-ui, -apple-system, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1117;
-    --fg: #f2f3f5;
-    --fg-muted: #9aa0ac;
-    --card-bg: #171922;
-    --card-border: #2a2d38;
-    --input-bg: #1d202b;
-    --input-border: #383c4a;
-    --code-bg: #1d202b;
-    --code-fg: #e8eaed;
-    --accent: #7ea2ff;
-    --success-bg: #113328;
-    --success-fg: #6ee7b7;
-    --error-bg: #3a1414;
-    --error-fg: #fca5a5;
-    --divider: #262a35;
-  }
 }
 
 * {
@@ -392,12 +375,30 @@ button[type='submit']:disabled {
 
 .alias {
   font-weight: 600;
-  min-width: 6rem;
+  width: 6rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rename-link {
+  width: 3.75rem;
+  flex-shrink: 0;
 }
 
 .google-email {
   color: var(--fg-muted);
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  width: 7.5rem;
+  flex-shrink: 0;
 }
 
 .status-ok {
@@ -868,4 +869,48 @@ button[type='submit']:disabled {
 
 @media (max-width: 480px) {
   .auth-screen .auth-card { padding: 1.75rem 1.35rem; }
+
+  .app { padding: 1.5rem 1rem; }
+
+  .dashboard header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .connect-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .connect-form button {
+    white-space: normal;
+  }
+
+  .security-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .security-row .btn,
+  .security-row .btn-outline,
+  .security-row .btn-danger {
+    width: 100%;
+  }
+
+  .account-list li {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .audit-entry {
+    grid-template-columns: 1fr;
+    row-gap: 0.25rem;
+  }
+
+  .audit-time-block {
+    align-items: flex-start;
+    text-align: left;
+  }
 }

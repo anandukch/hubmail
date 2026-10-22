@@ -4,6 +4,85 @@ interface Props {
   onGetStarted: () => void;
 }
 
+function Icon({ children }: { children: React.ReactNode }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="lp-icon" aria-hidden="true">
+      {children}
+    </svg>
+  );
+}
+
+const IconGear = () => (
+  <Icon>
+    <circle cx="10" cy="10" r="2.6" stroke="currentColor" strokeWidth="1.5" />
+    <path
+      d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3L4.9 4.9"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+  </Icon>
+);
+
+const IconLaptop = () => (
+  <Icon>
+    <rect x="3" y="4" width="14" height="9" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M1.5 16.5h17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </Icon>
+);
+
+const IconUser = () => (
+  <Icon>
+    <circle cx="10" cy="7" r="3" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M3.5 17c1-3.3 3.8-5 6.5-5s5.5 1.7 6.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </Icon>
+);
+
+const IconCloud = () => (
+  <Icon>
+    <path
+      d="M6 15h8.5a3 3 0 0 0 .5-5.96 4.5 4.5 0 0 0-8.6-1.47A3.5 3.5 0 0 0 6 15z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+  </Icon>
+);
+
+const IconInboxStack = () => (
+  <Icon>
+    <rect x="3" y="5" width="14" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    <rect x="3" y="11" width="14" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+  </Icon>
+);
+
+const IconLockOutline = () => (
+  <Icon>
+    <rect x="4.5" y="9" width="11" height="7.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </Icon>
+);
+
+const IconMonitor = () => (
+  <Icon>
+    <rect x="2.5" y="4" width="15" height="10" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M7 17.5h6M10 14v3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </Icon>
+);
+
+const IconSearch = () => (
+  <Icon>
+    <circle cx="8.5" cy="8.5" r="5" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M15.5 15.5L12.3 12.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </Icon>
+);
+
+const IconCheck = () => (
+  <Icon>
+    <path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </Icon>
+);
+
 export default function LandingPage({ onGetStarted }: Props) {
   return (
     <div className="lp">
@@ -18,7 +97,7 @@ export default function LandingPage({ onGetStarted }: Props) {
 
       {/* Hero */}
       <section className="lp-hero">
-        <div className="lp-badge">Open source · Gmail read-only · No setup</div>
+        <div className="lp-badge">Open source · Multi-account · No setup</div>
         <h1 className="lp-headline">
           Your Gmail inbox,<br />
           <span className="lp-gradient">inside Claude.</span>
@@ -40,7 +119,7 @@ export default function LandingPage({ onGetStarted }: Props) {
             View source
           </a>
         </div>
-        <p className="lp-hero-note">Free · No credit card · Gmail read-only access</p>
+        <p className="lp-hero-note">Free · No credit card · Read access by default, write is opt-in</p>
 
         {/* Terminal mockup */}
         <div className="lp-terminal">
@@ -68,17 +147,17 @@ export default function LandingPage({ onGetStarted }: Props) {
           <h2 className="lp-section-title">Local Gmail MCP tools are painful</h2>
           <div className="lp-problem-grid">
             <div className="lp-problem-card">
-              <span className="lp-problem-icon">⚙️</span>
+              <span className="lp-problem-icon"><IconGear /></span>
               <strong>Clone repos to get started</strong>
               <p>Every local tool requires git clone, npm install, and hand-editing config files just to see your first email.</p>
             </div>
             <div className="lp-problem-card">
-              <span className="lp-problem-icon">💻</span>
+              <span className="lp-problem-icon"><IconLaptop /></span>
               <strong>Breaks when you switch machines</strong>
               <p>Tokens stored on disk. Move to a new laptop and you're back to square one — re-auth, re-config, re-debug.</p>
             </div>
             <div className="lp-problem-card">
-              <span className="lp-problem-icon">👤</span>
+              <span className="lp-problem-icon"><IconUser /></span>
               <strong>Single-user only</strong>
               <p>Built for one person on one machine. No accounts, no sharing, no team support.</p>
             </div>
@@ -120,27 +199,27 @@ export default function LandingPage({ onGetStarted }: Props) {
           <h2 className="lp-section-title">Everything local tools can't do</h2>
           <div className="lp-bento">
             <div className="lp-bento-card lp-bento-wide">
-              <div className="lp-bento-icon">☁️</div>
+              <div className="lp-bento-icon"><IconCloud /></div>
               <h3>Fully hosted</h3>
               <p>No local server. No config files. No terminal. Your MCP connector URL works from any device, any Claude client — forever.</p>
             </div>
             <div className="lp-bento-card">
-              <div className="lp-bento-icon">📬</div>
+              <div className="lp-bento-icon"><IconInboxStack /></div>
               <h3>Multi-account</h3>
               <p>Connect unlimited Gmail accounts under one hubmail login. Give each one an alias and tell Claude which to use.</p>
             </div>
             <div className="lp-bento-card">
-              <div className="lp-bento-icon">🔐</div>
+              <div className="lp-bento-icon"><IconLockOutline /></div>
               <h3>Google OAuth</h3>
               <p>No passwords. Standard Google OAuth flow — the same login you use everywhere.</p>
             </div>
             <div className="lp-bento-card">
-              <div className="lp-bento-icon">🖥️</div>
+              <div className="lp-bento-icon"><IconMonitor /></div>
               <h3>Web dashboard</h3>
               <p>See all connected accounts, their status, and your connector URL in one clean interface.</p>
             </div>
             <div className="lp-bento-card">
-              <div className="lp-bento-icon">🔍</div>
+              <div className="lp-bento-icon"><IconSearch /></div>
               <h3>Full Gmail search syntax</h3>
               <p>Ask Claude anything — and it uses Gmail's native search under the hood. <code>from:boss is:unread after:2024/01/01</code> — all of it works.</p>
             </div>
@@ -155,7 +234,7 @@ export default function LandingPage({ onGetStarted }: Props) {
           <h2 className="lp-section-title">You're giving Claude access to your inbox.<br />Here's exactly what we do with it.</h2>
           <div className="lp-trust-grid">
             <div className="lp-trust-card">
-              <div className="lp-trust-check">✓</div>
+              <div className="lp-trust-check"><IconCheck /></div>
               <div>
                 <h3>Open source</h3>
                 <p>Every line of code is public on GitHub. Audit exactly what happens to your tokens and emails. Nothing hidden.</p>
@@ -163,35 +242,35 @@ export default function LandingPage({ onGetStarted }: Props) {
               </div>
             </div>
             <div className="lp-trust-card">
-              <div className="lp-trust-check">✓</div>
+              <div className="lp-trust-check"><IconCheck /></div>
               <div>
-                <h3>Read-only Gmail access</h3>
-                <p>We only request <code>gmail.readonly</code> scope. Hubmail cannot send, delete, or modify any email. Ever.</p>
+                <h3>Read access by default, write is opt-in</h3>
+                <p>Connecting an account grants <code>gmail.readonly</code> by default. Google's consent screen lets you additionally grant <code>gmail.modify</code> if you want Claude to draft, label, or trash mail — deselect it to stay strictly read-only.</p>
               </div>
             </div>
             <div className="lp-trust-card">
-              <div className="lp-trust-check">✓</div>
+              <div className="lp-trust-check"><IconCheck /></div>
               <div>
                 <h3>No email content stored</h3>
                 <p>Emails are fetched live from Gmail on each Claude request and returned directly. We never cache or log email content.</p>
               </div>
             </div>
-            <div className="lp-trust-card lp-trust-soon">
-              <div className="lp-trust-check lp-trust-soon-badge">Soon</div>
+            <div className="lp-trust-card">
+              <div className="lp-trust-check"><IconCheck /></div>
               <div>
                 <h3>Audit log</h3>
-                <p>See every time Claude accessed your inbox — timestamp, tool called, which account. Full visibility, coming soon.</p>
+                <p>See every time Claude accessed your inbox — timestamp, tool called, which account — from the dashboard's Audit log tab.</p>
               </div>
             </div>
             <div className="lp-trust-card">
-              <div className="lp-trust-check">✓</div>
+              <div className="lp-trust-check"><IconCheck /></div>
               <div>
                 <h3>Encrypted token storage</h3>
                 <p>Google refresh tokens are encrypted at rest using AES-256-GCM before being stored in our database.</p>
               </div>
             </div>
             <div className="lp-trust-card">
-              <div className="lp-trust-check">✓</div>
+              <div className="lp-trust-check"><IconCheck /></div>
               <div>
                 <h3>One-click disconnect</h3>
                 <p>Revoke any Gmail account instantly from the dashboard. Token deleted from our database immediately.</p>
@@ -209,7 +288,7 @@ export default function LandingPage({ onGetStarted }: Props) {
           <div className="lp-faq">
             <details className="lp-faq-item">
               <summary>What can Claude actually do with my Gmail?</summary>
-              <p>Search emails using Gmail syntax, read the full content of individual emails, and list your connected accounts. That's it — no sending, no deleting, no drafts.</p>
+              <p>Search and read mail using Gmail syntax, always. If you grant write access when connecting (optional), it can also draft replies, label, archive, and trash messages, and set up filters — never send mail or delete permanently.</p>
             </details>
             <details className="lp-faq-item">
               <summary>How is this different from local Gmail MCP tools?</summary>
@@ -239,7 +318,7 @@ export default function LandingPage({ onGetStarted }: Props) {
       <section className="lp-section lp-cta-section">
         <div className="lp-section-inner lp-cta-inner">
           <h2 className="lp-cta-title">Connect your inbox in 2 minutes</h2>
-          <p className="lp-cta-sub">Free. Open source. Read-only Gmail access.</p>
+          <p className="lp-cta-sub">Free. Open source. You control read vs. write access.</p>
           <button className="lp-btn-primary lp-btn-lg" onClick={onGetStarted}>
             Get started →
           </button>

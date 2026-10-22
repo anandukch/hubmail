@@ -268,7 +268,13 @@
 
 .lp-problem-card strong { color: #ddd; font-size: 1rem; }
 .lp-problem-card p { color: #666; font-size: 0.9rem; margin: 0; }
-.lp-problem-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
+.lp-problem-icon { display: block; margin-bottom: 0.5rem; color: #6366f1; }
+
+.lp-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
 
 /* ── Steps ── */
 .lp-steps {
@@ -325,7 +331,8 @@
 
 .lp-bento-wide { grid-column: span 2; }
 
-.lp-bento-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+.lp-bento-icon { display: inline-flex; margin-bottom: 0.9rem; color: #6366f1; }
+.lp-bento-icon .lp-icon { width: 26px; height: 26px; }
 .lp-bento-card h3 { color: #fff; font-size: 1.05rem; margin: 0 0 0.5rem; }
 .lp-bento-card p { color: #666; font-size: 0.9rem; margin: 0; }
 .lp-bento-card code { background: #1a1a1a; padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.82em; color: #888; }
@@ -358,8 +365,6 @@
   border-radius: 50%;
   background: #14532d;
   color: #4ade80;
-  font-size: 0.8rem;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -367,16 +372,9 @@
   margin-top: 2px;
 }
 
-.lp-trust-soon .lp-trust-check {
-  background: #1c1400;
-  color: #ca8a04;
-}
-
-.lp-trust-soon-badge {
-  font-size: 0.6rem !important;
-  width: 36px !important;
-  border-radius: 6px !important;
-  letter-spacing: 0.02em;
+.lp-trust-check .lp-icon {
+  width: 15px;
+  height: 15px;
 }
 
 .lp-link {
