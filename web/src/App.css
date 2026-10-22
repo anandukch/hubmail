@@ -562,3 +562,310 @@ button[type='submit']:disabled {
   font-size: 0.82rem;
   white-space: nowrap;
 }
+
+/* ── Auth screen (login / signup / MFA) ── */
+
+.banner-floating {
+  position: fixed;
+  top: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: calc(100% - 2.5rem);
+}
+
+.auth-screen {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #080808;
+  background-image: radial-gradient(640px circle at 50% -10%, rgba(99, 102, 241, 0.16), transparent 60%);
+}
+
+.auth-screen .auth-card {
+  width: 100%;
+  max-width: 380px;
+  margin: 0;
+  background: #111118;
+  border: 1px solid #1f1f29;
+  border-radius: 20px;
+  padding: 2.25rem 2rem;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.auth-wordmark {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 0 0 0.35rem;
+  text-align: center;
+}
+
+.auth-card .subtitle {
+  color: #8a8a98;
+  text-align: center;
+  margin: 0 0 1.5rem;
+  font-size: 0.92rem;
+}
+
+.auth-icon-badge {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  background: #0a0a0f;
+  border: 1px solid #1f1f29;
+  border-radius: 10px;
+  padding: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-tab {
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #8a8a98;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.auth-tab:hover {
+  color: #e8e8ec;
+}
+
+.auth-tab-active {
+  background: #1b1b26;
+  color: #fff;
+  font-weight: 600;
+}
+
+.auth-screen .field {
+  margin-bottom: 1.1rem;
+}
+
+.auth-screen .field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #a6a6b3;
+  margin-bottom: 0.4rem;
+}
+
+.field-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 0.85rem;
+  width: 17px;
+  height: 17px;
+  color: #5a5a68;
+  pointer-events: none;
+}
+
+.auth-screen .field-input-wrap input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.85rem 0.65rem 2.5rem;
+  background: #0a0a0f;
+  border: 1px solid #26262f;
+  border-radius: 10px;
+  color: #f2f2f5;
+  font-size: 0.95rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.auth-screen .field-input-wrap input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.field-helper {
+  display: block;
+  font-size: 0.76rem;
+  color: #6a6a78;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.strength-meter {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.strength-segs {
+  display: flex;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.strength-seg {
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background: #26262f;
+  transition: background 0.2s;
+}
+
+.strength-seg.strength-weak { background: #ef4444; }
+.strength-seg.strength-okay { background: #f59e0b; }
+.strength-seg.strength-good,
+.strength-seg.strength-strong { background: #22c55e; }
+
+.strength-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.strength-label.strength-weak { color: #f87171; }
+.strength-label.strength-okay { color: #fbbf24; }
+.strength-label.strength-good,
+.strength-label.strength-strong { color: #4ade80; }
+
+.auth-screen .btn-submit,
+.btn-submit {
+  width: 100%;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-submit:hover:not(:disabled) { background: #7577f3; }
+.btn-submit:active:not(:disabled) { transform: scale(0.98); }
+.btn-submit:disabled { opacity: 0.55; cursor: default; }
+
+.auth-screen .link-button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: #8a8a98;
+  margin-top: 1.25rem;
+}
+
+.auth-screen .link-button:hover { color: #c4c4cf; }
+
+.auth-screen .error-text {
+  text-align: center;
+  margin: 0.25rem 0 0.75rem;
+  animation: shake-in 0.3s ease;
+}
+
+@keyframes shake-in {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.code-input {
+  text-align: center;
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 1.4rem !important;
+  letter-spacing: 0.4em;
+  padding-left: 0.85rem !important;
+}
+
+.code-input-sm {
+  font-size: 1.15rem !important;
+  letter-spacing: 0.3em;
+}
+
+/* Tactile feedback on the dashboard/security buttons too */
+.btn:active:not(:disabled),
+.btn-outline:active:not(:disabled),
+.btn-danger:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ── Recovery codes, elevated to feel appropriately serious ── */
+
+.recovery-codes-warning {
+  border: 1px solid #92400e;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), transparent);
+}
+
+.recovery-codes-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.recovery-codes-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #1c1400;
+  font-weight: 800;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.1rem;
+}
+
+.recovery-codes-head p {
+  margin: 0;
+}
+
+/* ── MFA setup, guided two-step flow ── */
+
+.mfa-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.mfa-step p {
+  margin: 0;
+}
+
+.mfa-step-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .auth-screen .auth-card { padding: 1.75rem 1.35rem; }
+}

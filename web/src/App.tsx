@@ -32,19 +32,60 @@ function useQueryBanner() {
 }
 
 // Purely advisory client-side signal — the real gate is the 12-char server-side minimum.
-function passwordStrength(password: string): { label: string; className: string } {
-  if (!password) return { label: '', className: '' };
+function passwordStrength(password: string): { label: string; className: string; score: number } {
+  if (!password) return { label: '', className: '', score: 0 };
   let score = 0;
   if (password.length >= 12) score++;
   if (password.length >= 16) score++;
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
   if (/[0-9]/.test(password) || /[^a-zA-Z0-9]/.test(password)) score++;
 
-  if (score <= 1) return { label: 'Weak', className: 'strength-weak' };
-  if (score <= 2) return { label: 'Okay', className: 'strength-okay' };
-  if (score <= 3) return { label: 'Good', className: 'strength-good' };
-  return { label: 'Strong', className: 'strength-strong' };
+  if (score <= 1) return { label: 'Weak', className: 'strength-weak', score };
+  if (score <= 2) return { label: 'Okay', className: 'strength-okay', score };
+  if (score <= 3) return { label: 'Good', className: 'strength-good', score };
+  return { label: 'Strong', className: 'strength-strong', score };
 }
+
+function StrengthMeter({ password }: { password: string }) {
+  const strength = passwordStrength(password);
+  if (!password) return null;
+  return (
+    <div className="strength-meter">
+      <div className="strength-segs">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className={`strength-seg ${i < strength.score ? strength.className : ''}`} />
+        ))}
+      </div>
+      <span className={`strength-label ${strength.className}`}>{strength.label}</span>
+    </div>
+  );
+}
+
+const IconMail = () => (
+  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="field-icon">
+    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M3 5.5L10 10.5L17 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconLock = () => (
+  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="field-icon">
+    <rect x="4" y="9" width="12" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconShield = () => (
+  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="field-icon field-icon-lg">
+    <path
+      d="M10 2.5l6 2.2v4.6c0 4-2.6 7-6 8.2-3.4-1.2-6-4.2-6-8.2V4.7l6-2.2z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path d="M7.3 10.2l1.9 1.9 3.6-3.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
 function AuthForm({ onAuthed }: { onAuthed: (user: CurrentUser) => void }) {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -58,8 +99,6 @@ function AuthForm({ onAuthed }: { onAuthed: (user: CurrentUser) => void }) {
   const [mfaCode, setMfaCode] = useState('');
   const [mfaError, setMfaError] = useState<string | null>(null);
   const [mfaBusy, setMfaBusy] = useState(false);
-
-  const strength = mode === 'signup' ? passwordStrength(password) : null;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -105,78 +144,106 @@ function AuthForm({ onAuthed }: { onAuthed: (user: CurrentUser) => void }) {
 
   if (mfaToken) {
     return (
-      <div className="auth-card">
-        <h1>hubmail</h1>
-        <p className="subtitle">Enter the 6-digit code from your authenticator app.</p>
-        <form onSubmit={submitMfa}>
-          <label>
-            Authentication code
-            <input
-              type="text"
-              inputMode="numeric"
-              autoFocus
-              required
-              placeholder="123456 or a recovery code"
-              value={mfaCode}
-              onChange={(e) => setMfaCode(e.target.value)}
-            />
-          </label>
-          {mfaError && <p className="error-text">{mfaError}</p>}
-          <button type="submit" disabled={mfaBusy}>
-            {mfaBusy ? 'Verifying…' : 'Verify'}
+      <div className="auth-screen">
+        <div className="auth-card auth-card-mfa">
+          <div className="auth-icon-badge"><IconShield /></div>
+          <h1 className="auth-wordmark">hubmail</h1>
+          <p className="subtitle">Enter the 6-digit code from your authenticator app.</p>
+          <form onSubmit={submitMfa}>
+            <div className="field">
+              <label htmlFor="mfa-code">Authentication code</label>
+              <input
+                id="mfa-code"
+                className="code-input"
+                type="text"
+                inputMode="numeric"
+                autoFocus
+                required
+                placeholder="123456"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+              />
+              <span className="field-helper">A recovery code also works here.</span>
+            </div>
+            {mfaError && <p className="error-text">{mfaError}</p>}
+            <button type="submit" className="btn-submit" disabled={mfaBusy}>
+              {mfaBusy ? 'Verifying…' : 'Verify'}
+            </button>
+          </form>
+          <button className="link-button" onClick={() => { setMfaToken(null); setMfaCode(''); setMfaError(null); }}>
+            ← Back to log in
           </button>
-        </form>
-        <button className="link-button" onClick={() => { setMfaToken(null); setMfaCode(''); setMfaError(null); }}>
-          Back to log in
-        </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="auth-card">
-      <h1>hubmail</h1>
-      <p className="subtitle">Connect Gmail accounts, query them from Claude.</p>
-      <form onSubmit={submit}>
-        <label>
-          Email
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            required
-            minLength={mode === 'signup' ? 12 : undefined}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        {mode === 'signup' && (
-          <>
-            {password && (
-              <p className={`strength-hint ${strength?.className}`}>{strength?.label}</p>
-            )}
-            <label>
-              Confirm password
+    <div className="auth-screen">
+      <div className="auth-card">
+        <h1 className="auth-wordmark">hubmail</h1>
+        <p className="subtitle">Connect Gmail accounts, query them from Claude.</p>
+        <div className="auth-tabs">
+          <button
+            type="button"
+            className={`auth-tab ${mode === 'login' ? 'auth-tab-active' : ''}`}
+            onClick={() => setMode('login')}
+          >
+            Log in
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${mode === 'signup' ? 'auth-tab-active' : ''}`}
+            onClick={() => setMode('signup')}
+          >
+            Sign up
+          </button>
+        </div>
+        <form onSubmit={submit}>
+          <div className="field">
+            <label htmlFor="auth-email">Email</label>
+            <div className="field-input-wrap">
+              <IconMail />
+              <input id="auth-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="auth-password">Password</label>
+            <div className="field-input-wrap">
+              <IconLock />
               <input
+                id="auth-password"
                 type="password"
                 required
-                minLength={12}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={mode === 'signup' ? 12 : undefined}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-            </label>
-          </>
-        )}
-        {error && <p className="error-text">{error}</p>}
-        <button type="submit" disabled={busy}>
-          {mode === 'login' ? 'Log in' : 'Sign up'}
-        </button>
-      </form>
-      <button className="link-button" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
-        {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
-      </button>
+            </div>
+            {mode === 'signup' && <StrengthMeter password={password} />}
+          </div>
+          {mode === 'signup' && (
+            <div className="field">
+              <label htmlFor="auth-confirm">Confirm password</label>
+              <div className="field-input-wrap">
+                <IconLock />
+                <input
+                  id="auth-confirm"
+                  type="password"
+                  required
+                  minLength={12}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+          {error && <p className="error-text">{error}</p>}
+          <button type="submit" className="btn-submit" disabled={busy}>
+            {busy ? (mode === 'login' ? 'Logging in…' : 'Signing up…') : mode === 'login' ? 'Log in' : 'Create account'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -313,6 +380,7 @@ function SecuritySection({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut
               onChange={(e) => setNewPassword(e.target.value)}
             />
           </label>
+          {newPassword && <StrengthMeter password={newPassword} />}
           <label>
             Confirm new password
             <input
@@ -340,11 +408,14 @@ function SecuritySection({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut
         </div>
 
         {recoveryCodes && (
-          <div className="recovery-codes">
-            <p>
-              <strong>Save these recovery codes now — they won't be shown again.</strong> Each works once, if
-              you lose access to your authenticator app.
-            </p>
+          <div className="recovery-codes recovery-codes-warning">
+            <div className="recovery-codes-head">
+              <span className="recovery-codes-icon">!</span>
+              <p>
+                <strong>Save these recovery codes now — they won't be shown again.</strong> Each works once, if
+                you lose access to your authenticator app.
+              </p>
+            </div>
             <div className="recovery-codes-grid">
               {recoveryCodes.map((c) => (
                 <span key={c}>{c}</span>
@@ -400,14 +471,22 @@ function SecuritySection({ user, onLoggedOut }: { user: CurrentUser; onLoggedOut
 
         {!recoveryCodes && mfaSetup && (
           <form className="stacked-form mfa-setup-box" onSubmit={confirmMfaSetup}>
-            <p>Scan this QR code with your authenticator app, then enter the 6-digit code it shows.</p>
+            <div className="mfa-step">
+              <span className="mfa-step-num">1</span>
+              <p>Scan this QR code with your authenticator app.</p>
+            </div>
             <img className="mfa-qr" src={mfaSetup.qrDataUrl} alt="MFA setup QR code" width={180} height={180} />
             <p className="hint">
               Or enter this key manually: <code>{mfaSetup.secret}</code>
             </p>
+            <div className="mfa-step">
+              <span className="mfa-step-num">2</span>
+              <p>Enter the 6-digit code it shows.</p>
+            </div>
             <label>
               Code
               <input
+                className="code-input code-input-sm"
                 type="text"
                 inputMode="numeric"
                 required
@@ -755,10 +834,10 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {banner && <div className={`banner banner-${banner.kind}`}>{banner.text}</div>}
+    <>
+      {banner && <div className={`banner banner-${banner.kind} banner-floating`}>{banner.text}</div>}
       <AuthForm onAuthed={setUser} />
-    </div>
+    </>
   );
 }
 
